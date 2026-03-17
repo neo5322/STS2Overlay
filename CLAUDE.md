@@ -24,6 +24,7 @@ QuestceSpire/                 # Main C# project
 │   ├── CardPropertyScorer.cs # Card property evaluation
 │   ├── EventAdvisor.cs       # Event choice recommendations
 │   ├── EnemyAdvisor.cs       # Enemy threat assessment
+│   ├── RunSummary.cs         # Post-run analysis engine (combat stats, card usage, community comparison)
 │   └── ...data classes       # ScoredCard, ScoredRelic, ArchetypeMatch, etc.
 ├── GameBridge/               # Game API abstraction
 │   ├── GameStateReader.cs    # Extracts game state (deck, hand, relics)
@@ -37,7 +38,11 @@ QuestceSpire/                 # Main C# project
 │   ├── DataUpdater.cs        # Automatic data file updates (219 lines)
 │   ├── GameDataImporter.cs   # Imports game history
 │   ├── PipelineHttp.cs       # Shared HTTP client with rate-limit + retry
+│   ├── IDataPipeline.cs      # Common pipeline interface with status tracking
 │   ├── PipelineOrchestrator.cs  # Dependency-ordered pipeline runner
+│   ├── RelicCardCrossRef.cs  # Relic-card co-occurrence win-rate pipeline + relic_card_cross DB table
+│   ├── RuntimeCardExtractor.cs  # sts2.dll reflection for auto-detecting new cards/relics
+│   ├── OfflineDataManager.cs # Disk cache, file verification, fallback loading, 30-day cleanup
 │   ├── SpireCodexSync.cs     # Spire Codex API sync (cards/relics/potions)
 │   ├── PatchNotesTracker.cs  # Steam patch note parsing → balance changes
 │   ├── SteamLeaderboardSync.cs  # Global leaderboard stats cache
@@ -54,7 +59,7 @@ QuestceSpire/                 # Main C# project
 │   ├── OverlayManager.cs     # Core lifecycle, panel management, Rebuild (1,331 lines)
 │   ├── OverlayManager.Advice.cs   # Per-screen advice generation (909 lines)
 │   ├── OverlayManager.Builder.cs  # UI element construction (739 lines)
-│   ├── OverlayManager.Stats.cs    # History, deck viz, win rate (721 lines)
+│   ├── OverlayManager.Stats.cs    # History, deck viz, win rate, run summary (1,025 lines)
 │   ├── OverlayManager.Badges.cs   # In-game card/relic badges (463 lines)
 │   └── OverlayManager.Settings.cs # Settings menu (300 lines)
 ├── Data/                     # JSON/TSV data files
@@ -133,7 +138,7 @@ The UI is split by concern into partial classes sharing the same field set:
 | `OverlayManager.Advice.cs` | 909 | Per-screen advice methods |
 | `GamePatches.cs` | 897 | 20+ Harmony patches — candidate for splitting |
 | `OverlayManager.Builder.cs` | 739 | UI element builders |
-| `OverlayManager.Stats.cs` | 721 | Statistics display |
+| `OverlayManager.Stats.cs` | 1,025 | Statistics display + run summary UI |
 | `SynergyScorer.cs` | 621 | Complex scoring logic |
 | `RunDatabase.Pipelines.cs` | 500 | Pipeline DB tables (partial class of RunDatabase) |
 | `RunDatabase.cs` | 262 | Core SQL schema — pipeline tables split to RunDatabase.Pipelines.cs |
