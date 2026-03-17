@@ -7,7 +7,8 @@
 ### 추가
 - Linux/macOS 빌드 스크립트 (`build.sh`, `release.sh`)
 - CLAUDE.md 개발자 가이드 및 `.editorconfig`
-- README에 프로젝트 구조 섹션
+- README 한/영 이중 언어 지원, OS별 설치 가이드, FAQ/트러블슈팅
+- CHANGELOG.md 추가
 
 ### 변경
 - `GamePatches` → 3개 partial class로 분리 (`GamePatches.cs`, `CardReward.cs`, `ScreenHooks.cs`)
@@ -22,6 +23,10 @@
 - 빈 컬렉션 / substring 범위 오류 수정
 - GameBridge/Patches/Plugin 안정성 개선
 - Tracking/DB 안정성 및 데이터 정확도 개선
+- DB 트랜잭션 에러 시 Rollback 누락 수정 (SaveRun, CommunityStats)
+- 버전 번호 `.csproj` 단일 소스로 통일 (Plugin.cs, release 스크립트 자동 동기화)
+- CI 릴리즈 파이프라인 산출물 검증 강화
+- 릴리즈 스크립트 `local.props` 존재 확인 및 필수 파일 검증 추가
 
 ## [0.1.0] - 초기 릴리즈
 
