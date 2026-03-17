@@ -40,7 +40,9 @@
    <STS2GamePath>게임 경로</STS2GamePath>
    <GodotExePath>Godot 경로</GodotExePath>
    ```
-3. `build.bat` 실행
+3. 빌드 실행:
+   - **Windows**: `cd QuestceSpire && build.bat`
+   - **Linux/macOS**: `cd QuestceSpire && ./build.sh`
 
 ## 사용법
 
@@ -48,6 +50,21 @@
 - 드래그로 이동, ▲로 접기
 - ⚙ 설정에서 기능별 ON/OFF
 - 카드/유물/상점/이벤트/전투/맵에서 자동 분석
+
+## 프로젝트 구조
+
+```
+QuestceSpire/
+├── Plugin.cs                 # 진입점, 서비스 초기화
+├── GamePatches.cs            # Harmony 패치 인프라 + 런 생명주기
+├── GamePatches.CardReward.cs # 카드 보상 패치
+├── GamePatches.ScreenHooks.cs# 유물/상점/휴식/전투/이벤트/맵 패치
+├── Core/                     # 비즈니스 로직 (스코어링, 분석)
+├── GameBridge/               # 게임 API 추상화
+├── Tracking/                 # SQLite DB, 런 추적, 통계
+├── UI/                       # 오버레이 UI (partial class로 분리)
+└── Data/                     # 카드/유물 티어, 이벤트, 적 데이터
+```
 
 ## 데이터 출처
 
