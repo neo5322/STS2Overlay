@@ -99,6 +99,10 @@ public static class Plugin
 
 	public static OfflineDataManager OfflineDataManager { get; private set; }
 
+	public static RouteAdvisor RouteAdvisor { get; private set; }
+
+	public static CommunityApiClient CommunityApiClient { get; private set; }
+
 	public static OverlayManager Overlay { get; set; }
 
 	public static void Init()
@@ -166,6 +170,8 @@ public static class Plugin
 		OfflineDataManager = new OfflineDataManager(dataPath);
 		OfflineDataManager.VerifyRequiredFiles();
 		OfflineDataManager.CleanupOldCache(TimeSpan.FromDays(30));
+		RouteAdvisor = new RouteAdvisor();
+		CommunityApiClient = new CommunityApiClient(RunDatabase, dataPath);
 
 		var overlaySettings = OverlaySettings.Load();
 		PipelineOrchestrator = new PipelineOrchestrator(overlaySettings);
@@ -177,6 +183,17 @@ public static class Plugin
 			{
 				await PipelineOrchestrator.RunAll();
 				RunHealthComputer.ComputeBenchmarks();
+				// Fetch community data from external APIs
+				try
+				{
+					var communityData = await CommunityApiClient.FetchAll();
+					if (communityData.TotalSources > 0)
+						CommunityApiClient.ApplyToDatabase(communityData);
+				}
+				catch (Exception cex)
+				{
+					Log($"Community API fetch error: {cex.Message}");
+				}
 				_backgroundInitDone = true;
 			}
 			catch (Exception ex)

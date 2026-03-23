@@ -80,7 +80,10 @@ project/assembly_name="$(ModName)"
   "pck_name": "$(ModName)",
   "name": "$(ModDisplayName)",
   "author": "$(ModAuthor)",
-  "version": "$(ModVersion)"
+  "version": "$(ModVersion)",
+  "affects_gameplay": false,
+  "description": "Real-time card/relic advisor overlay with tier lists, synergy scoring, deck analysis, and route recommendations",
+  "dependencies": []
 }</ModManifestContent>
 		</PropertyGroup>
 		<WriteLinesToFile File="$(ModManifestPath)" Lines="$(ModManifestContent)" Overwrite="true" Encoding="UTF-8" />

@@ -36,9 +36,13 @@ public class OverlaySettings
 	public bool ShowCoPickSynergy { get; set; } = true;
 	public bool ShowRunSummary { get; set; } = true;
 
+	// v0.15: Route advisor & community API
+	public bool ShowRouteAdvice { get; set; } = true;
+	public bool UseCommunityApi { get; set; } = true;
+
 	// Bump this when defaults change to force migration on old saved files
 	public int SettingsVersion { get; set; } = 0;
-	private const int CurrentVersion = 6;
+	private const int CurrentVersion = 7;
 
 	private static string GetSettingsPath()
 	{
@@ -81,6 +85,12 @@ public class OverlaySettings
 							settings.ShowFloorTierInfo = true;
 							settings.ShowCoPickSynergy = true;
 							settings.ShowRunSummary = true;
+						}
+						// v6 → v7: Route advisor & community API
+						if (settings.SettingsVersion < 7)
+						{
+							settings.ShowRouteAdvice = true;
+							settings.UseCommunityApi = true;
 						}
 						settings.SettingsVersion = CurrentVersion;
 						settings.Save();

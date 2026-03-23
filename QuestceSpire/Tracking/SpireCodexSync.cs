@@ -42,6 +42,10 @@ public class SpireCodexSync
 		synced += await SyncEndpoint("relics", "codex_relics.json") ? 1 : 0;
 		synced += await SyncEndpoint("potions", "codex_potions.json") ? 1 : 0;
 		synced += await SyncEndpoint("monsters", "codex_monsters.json") ? 1 : 0;
+		synced += await SyncEndpoint("encounters", "codex_encounters.json") ? 1 : 0;
+		synced += await SyncEndpoint("events", "codex_events.json") ? 1 : 0;
+		synced += await SyncEndpoint("enchantments", "codex_enchantments.json") ? 1 : 0;
+		synced += await SyncEndpoint("powers", "codex_powers.json") ? 1 : 0;
 
 		if (currentVersion != null)
 		{
@@ -171,6 +175,43 @@ public class SpireCodexSync
 			return new List<CodexPotion>();
 		}
 	}
+	/// <summary>
+	/// Load cached encounter data for RouteAdvisor enrichment.
+	/// </summary>
+	public static List<CodexEncounter> LoadCachedEncounters(string dataFolder)
+	{
+		try
+		{
+			string path = Path.Combine(dataFolder, "codex_encounters.json");
+			if (!File.Exists(path)) return new List<CodexEncounter>();
+			var json = File.ReadAllText(path);
+			return JsonConvert.DeserializeObject<List<CodexEncounter>>(json) ?? new List<CodexEncounter>();
+		}
+		catch (Exception ex)
+		{
+			Plugin.Log($"SpireCodexSync: failed to load cached encounters — {ex.Message}");
+			return new List<CodexEncounter>();
+		}
+	}
+
+	/// <summary>
+	/// Load cached event data for EventAdvisor enrichment.
+	/// </summary>
+	public static List<CodexEvent> LoadCachedEvents(string dataFolder)
+	{
+		try
+		{
+			string path = Path.Combine(dataFolder, "codex_events.json");
+			if (!File.Exists(path)) return new List<CodexEvent>();
+			var json = File.ReadAllText(path);
+			return JsonConvert.DeserializeObject<List<CodexEvent>>(json) ?? new List<CodexEvent>();
+		}
+		catch (Exception ex)
+		{
+			Plugin.Log($"SpireCodexSync: failed to load cached events — {ex.Message}");
+			return new List<CodexEvent>();
+		}
+	}
 }
 
 // Codex data models — flexible to match API response
@@ -210,6 +251,30 @@ public class CodexPotion
 	[JsonProperty("name")] public string Name { get; set; }
 	[JsonProperty("rarity")] public string Rarity { get; set; }
 	[JsonProperty("description")] public string Description { get; set; }
+
+	[JsonExtensionData]
+	public Dictionary<string, JToken> Extra { get; set; }
+}
+
+public class CodexEncounter
+{
+	[JsonProperty("id")] public string Id { get; set; }
+	[JsonProperty("name")] public string Name { get; set; }
+	[JsonProperty("act")] public int? Act { get; set; }
+	[JsonProperty("type")] public string Type { get; set; } // "normal", "elite", "boss"
+	[JsonProperty("monsters")] public List<string> Monsters { get; set; }
+
+	[JsonExtensionData]
+	public Dictionary<string, JToken> Extra { get; set; }
+}
+
+public class CodexEvent
+{
+	[JsonProperty("id")] public string Id { get; set; }
+	[JsonProperty("name")] public string Name { get; set; }
+	[JsonProperty("act")] public int? Act { get; set; }
+	[JsonProperty("description")] public string Description { get; set; }
+	[JsonProperty("choices")] public List<JObject> Choices { get; set; }
 
 	[JsonExtensionData]
 	public Dictionary<string, JToken> Extra { get; set; }

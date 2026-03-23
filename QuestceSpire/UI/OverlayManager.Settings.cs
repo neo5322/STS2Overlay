@@ -96,6 +96,8 @@ public partial class OverlayManager
 		AddSettingsToggle(menuVBox, "층별 티어 정보", _settings.ShowFloorTierInfo, () => { _settings.ShowFloorTierInfo = !_settings.ShowFloorTierInfo; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "카드 조합 시너지", _settings.ShowCoPickSynergy, () => { _settings.ShowCoPickSynergy = !_settings.ShowCoPickSynergy; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "런 요약", _settings.ShowRunSummary, () => { _settings.ShowRunSummary = !_settings.ShowRunSummary; _settings.Save(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "경로 추천", _settings.ShowRouteAdvice, () => { _settings.ShowRouteAdvice = !_settings.ShowRouteAdvice; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "커뮤니티 API", _settings.UseCommunityApi, () => { _settings.UseCommunityApi = !_settings.UseCommunityApi; _settings.Save(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "파이프라인 동기화", _settings.EnablePipelineSync, () => { _settings.EnablePipelineSync = !_settings.EnablePipelineSync; _settings.Save(); RefreshSettingsMenu(); });
 
 		// Opacity section
