@@ -1406,10 +1406,10 @@
       "enemyId": "DoormakerBoss",
       "enemyName": "Doormaker",
       "tips": [
+        "[v0.100.0 버프] 10번째 드로우 카드를 영구 제거 + 힘 1 획득. 핵심 카드 보호 필수!",
         "Summons doors as minions. Destroy doors to prevent special effects.",
         "AOE handles the doors while you chip away at the boss.",
-        "Prioritize dangerous doors — some may heal the boss or buff it.",
-        "Balance clearing doors with dealing boss damage."
+        "덱 드로우 순서 관리가 매우 중요해짐. 핵심 카드가 먹히지 않도록 주의."
       ],
       "dangerLevel": "extreme",
       "priority": 10
@@ -1418,10 +1418,10 @@
       "enemyId": "DOORMAKER_BOSS",
       "enemyName": "Doormaker",
       "tips": [
+        "[v0.100.0 버프] 10번째 드로우 카드를 영구 제거 + 힘 1 획득. 핵심 카드 보호 필수!",
         "Summons doors as minions. Destroy doors to prevent special effects.",
         "AOE handles the doors while you chip away at the boss.",
-        "Prioritize dangerous doors — some may heal the boss or buff it.",
-        "Balance clearing doors with dealing boss damage."
+        "덱 드로우 순서 관리가 매우 중요해짐. 핵심 카드가 먹히지 않도록 주의."
       ],
       "dangerLevel": "extreme",
       "priority": 10
@@ -1430,6 +1430,7 @@
       "enemyId": "KaiserCrabBoss",
       "enemyName": "Kaiser Crab",
       "tips": [
+        "[v0.100.0 버프] 양쪽 팔 HP +10~20, 힘 획득 증가, Rage 5→6. 더 위험해짐!",
         "Two-enemy boss fight with Crusher and Rocket components.",
         "Crusher deals heavy melee damage — block on its attack turns.",
         "Rocket may deal ranged or AOE damage — track both intents.",
@@ -1442,6 +1443,7 @@
       "enemyId": "KAISER_CRAB_BOSS",
       "enemyName": "Kaiser Crab",
       "tips": [
+        "[v0.100.0 버프] 양쪽 팔 HP +10~20, 힘 획득 증가, Rage 5→6. 더 위험해짐!",
         "Two-enemy boss fight with Crusher and Rocket components.",
         "Crusher deals heavy melee damage — block on its attack turns.",
         "Rocket may deal ranged or AOE damage — track both intents.",

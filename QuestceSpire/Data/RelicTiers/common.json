@@ -6,7 +6,7 @@
       "baseTier": "C",
       "synergies": [],
       "antiSynergies": [],
-      "notes": "Common. Minor passive benefit"
+      "notes": "[v0.100.0 버프] 골드 획득 10→15. 소폭 상향"
     },
     {
       "id": "Anchor",
@@ -42,7 +42,7 @@
         "draw"
       ],
       "antiSynergies": [],
-      "notes": "Common. Draw benefit from stance or skill use"
+      "notes": "[v0.100.0 버프] 회복 15→20. 수치 향상"
     },
     {
       "id": "Bronze Scales",
@@ -137,7 +137,7 @@
         "block"
       ],
       "antiSynergies": [],
-      "notes": "Common. Frost-related, niche"
+      "notes": "[v0.100.0 버프] 블록 6→7. 소폭 상향"
     },
     {
       "id": "Potion Belt",
@@ -247,7 +247,7 @@
         "block"
       ],
       "antiSynergies": [],
-      "notes": "Uncommon. Minor block benefit"
+      "notes": "[v0.100.0 버프] 골드 수익 20%→25%. 소폭 상향"
     },
     {
       "id": "Candelabra",
@@ -417,7 +417,7 @@
       "baseTier": "C",
       "synergies": [],
       "antiSynergies": [],
-      "notes": "Uncommon. Star map, navigation/pathing benefit"
+      "notes": "[v0.100.0 버프] HP 획득 4→5. 소폭 상향"
     },
     {
       "id": "Red Mask",
@@ -453,12 +453,12 @@
     },
     {
       "id": "Stone Cracker",
-      "baseTier": "C",
+      "baseTier": "B",
       "synergies": [
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "Uncommon. Damage + vulnerability effect"
+      "notes": "[v0.100.0 버프] 이제 모든 전투에서 작동 (이전: 엘리트만). 업그레이드 카드 2장으로 변경. 범용성 대폭 상승"
     },
     {
       "id": "Tuning Fork",

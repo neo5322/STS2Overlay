@@ -1,6 +1,8 @@
 {
   "character": "silent",
   "source": "https://www.youtube.com/watch?v=ToKDj1lLeZ0",
+  "patchVersion": "v0.100.0",
+  "lastUpdated": "2026-03-23",
   "cards": [
     {
       "id": "Strike Silent",
@@ -55,13 +57,13 @@
     },
     {
       "id": "Anticipate",
-      "baseTier": "C",
+      "baseTier": "D",
       "synergies": [
         "block",
         "zero_cost"
       ],
       "antiSynergies": [],
-      "notes": "0-코스트 defensive 스킬, decent filler"
+      "notes": "[v0.100.0 너프] 민첩 3(5)→2(3). 숫자가 너무 낮아짐. 방어 카드로서 가치 크게 하락"
     },
     {
       "id": "Backflip",
@@ -156,7 +158,7 @@
         "multi_hit"
       ],
       "antiSynergies": [],
-      "notes": "광역 공격 with Sly, 블록-based 칼날 generation"
+      "notes": "[v0.100.0 너프] 피해 7(9)→6(8). 소폭 하락, B급 유지"
     },
     {
       "id": "Leading Strike",
@@ -190,15 +192,15 @@
       "notes": "Damage + small 독, mediocre"
     },
     {
-      "id": "Prepared",
-      "baseTier": "S",
+      "id": "Prepare",
+      "baseTier": "C",
       "synergies": [
-        "draw",
         "discard",
-        "discard_synergy"
+        "discard_synergy",
+        "energy"
       ],
       "antiSynergies": [],
-      "notes": "0-코스트 cycle 카드"
+      "notes": "[v0.100.0 리워크] Prepared→Prepare 이름 변경. 코스트 0→1, 카드 2장 버리고 다음 턴 에너지 2(3) 획득. 무한 방지 너프. 완전히 다른 카드가 됨"
     },
     {
       "id": "Ricochet",
@@ -243,12 +245,12 @@
     },
     {
       "id": "Untouchable",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "block"
       ],
       "antiSynergies": [],
-      "notes": "2-코스트 블록 with Sly, decent defense"
+      "notes": "[v0.100.0 너프] 블록 9(12)→7(9). 수치 대폭 하락. Sly 키워드 있지만 S급 유지 불가"
     },
     {
       "id": "Accuracy",
@@ -501,12 +503,12 @@
     },
     {
       "id": "Pinpoint",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "3-코스트 targeted 공격, expensive for un일반"
+      "notes": "[v0.100.0 너프] 피해 17(22)→15(19). 수치 하락으로 S급에서 탈락"
     },
     {
       "id": "Pounce",
@@ -557,7 +559,7 @@
         "zero_cost"
       ],
       "antiSynergies": [],
-      "notes": "X-코스트 다단 공격 공격"
+      "notes": "[v0.100.0 버프] 피해 7(10)→8(11). 소폭 상향"
     },
     {
       "id": "Speedster",
@@ -698,13 +700,13 @@
     },
     {
       "id": "Corrosive Wave",
-      "baseTier": "A",
+      "baseTier": "B",
       "synergies": [
         "poison",
         "weak"
       ],
       "antiSynergies": [],
-      "notes": "광역 3 독 + debuffs"
+      "notes": "[v0.100.0 너프] 독 3(4)→2(3). 광역 디버프는 여전히 좋지만 독 수치 하락으로 A급에서 탈락"
     },
     {
       "id": "Echoing Slash",
@@ -742,14 +744,14 @@
     },
     {
       "id": "Grand Finale",
-      "baseTier": "C",
+      "baseTier": "B",
       "synergies": [
         "draw",
         "discard",
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "0-코스트 50 피해 if 드로우 pile empty, hard to setup"
+      "notes": "[v0.100.0 버프] 피해 50(60)→60(75). 무한 너프로 셋업 가치 상승. 75 피해는 보스도 원킬 가능"
     },
     {
       "id": "Knife Trap",

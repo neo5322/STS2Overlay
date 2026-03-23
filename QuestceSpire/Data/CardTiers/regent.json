@@ -1,6 +1,8 @@
 {
   "character": "regent",
   "source": "https://www.youtube.com/watch?v=dcGa6DklLBU",
+  "patchVersion": "v0.100.0",
+  "lastUpdated": "2026-03-23",
   "cards": [
     {
       "id": "Strike Regent",
@@ -44,14 +46,14 @@
     },
     {
       "id": "Alignment",
-      "baseTier": "C",
+      "baseTier": "D",
       "synergies": [
         "stars",
         "scaling",
         "stellar"
       ],
       "antiSynergies": [],
-      "notes": "Has its uses but very often kind of clunky. There's about one 카드 you can pick this with"
+      "notes": "[v0.100.0 너프] 별 비용 2→3. 더 비싸졌고 더 clunky해짐. 사용처가 거의 없음"
     },
     {
       "id": "Arsenal",
@@ -88,13 +90,13 @@
     },
     {
       "id": "Begone",
-      "baseTier": "A",
+      "baseTier": "B",
       "synergies": [
-        "damage",
+        "minion",
         "exhaust"
       ],
       "antiSynergies": [],
-      "notes": "End of A tier. 좋은 초반 피해, adds Dive Bomb (13 dmg 소멸), targeted 소멸 for going infinite"
+      "notes": "[v0.100.0 리워크] 공격→스킬로 변경, 피해 제거. 이제 Minion Strike(6 피해) 생성. 이전의 Dive Bomb 대신 약한 미니언 카드 추가"
     },
     {
       "id": "Big Bang",
@@ -141,13 +143,13 @@
     },
     {
       "id": "Bundle Of Joy",
-      "baseTier": "D",
+      "baseTier": "C",
       "synergies": [
         "minion",
         "exhaust"
       ],
       "antiSynergies": [],
-      "notes": "Disgusting. Doesn't even cheat 에너지 코스트s. Terrible, don't take it"
+      "notes": "[v0.100.0 버프] 코스트 2→1. 1코스트로 괜찮아짐. 여전히 강하진 않지만 이전보다 플레이 가능"
     },
     {
       "id": "Celestial Might",
@@ -167,7 +169,7 @@
         "draw"
       ],
       "antiSynergies": [],
-      "notes": "One of the premium ways to 소멸 카드s. Cheap targeted 소멸, thins 덱, premium 유틸"
+      "notes": "[v0.100.0 리워크] 이제 Minion Dive Bomb(0코스트 13 피해 소멸) 생성. 이전보다 더 강한 토큰 카드 획득. 소멸+고피해 조합"
     },
     {
       "id": "Child Of The Stars",
@@ -201,7 +203,7 @@
         "zero_cost"
       ],
       "antiSynergies": [],
-      "notes": "Okay, decent 초반 game thing. Lets you push 피해 without 에너지. Don't really want it most of the time"
+      "notes": "[v0.100.0 버프] 피해 9(12)→11(15). 수치 향상으로 초반 픽 가치 상승"
     },
     {
       "id": "Comet",
@@ -350,7 +352,7 @@
         "stellar"
       ],
       "antiSynergies": [],
-      "notes": "Pretty good 카드, up here somewhere. Making stars is good, 블록ing is good, better than Cosmic Indifference"
+      "notes": "[v0.100.0 버프] 블록 7(10)→8(11). 소폭 상향, 별 생성+블록 조합 여전히 우수"
     },
     {
       "id": "Genesis",
@@ -385,14 +387,15 @@
     },
     {
       "id": "Glow",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "stars",
         "block",
-        "stellar"
+        "stellar",
+        "draw"
       ],
       "antiSynergies": [],
-      "notes": "S tier — equivalent to Defect's Coolheaded. 핵심 카드 on the class. Common you build entire 덱 around"
+      "notes": "[v0.100.0 리워크] 드로우 2→1, 대신 다음 턴에 1장 추가 드로우. 즉시 드로우 감소로 S급에서 하락. 여전히 핵심 카드이지만 턴 지연됨"
     },
     {
       "id": "Guards",
@@ -445,12 +448,12 @@
     },
     {
       "id": "Heirloom Hammer",
-      "baseTier": "D",
+      "baseTier": "C",
       "synergies": [
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "Never clicked this 카드. 17 피해 for two 에너지 not great, copy a colorless 카드 unclear payoff"
+      "notes": "[v0.100.0 버프] 피해 17(22)→20(25). 2코스트 20 피해로 괜찮아짐. 무색 카드 복사도 유틸 있음"
     },
     {
       "id": "Hidden Cache",
@@ -469,25 +472,25 @@
         "block"
       ],
       "antiSynergies": [],
-      "notes": "Fine, nine 블록 is quite good. But top 덱 manipulation isn't what this character does. Not happy to see this"
+      "notes": "[v0.100.0 버프] 블록 9(12)→10(13). 소폭 상향"
     },
     {
       "id": "Kingly Kick",
+      "baseTier": "B",
+      "synergies": [
+        "damage"
+      ],
+      "antiSynergies": [],
+      "notes": "[v0.100.0 버프] 피해 24(30)→27(35). 업그레이드 35 피해는 상당. 드로우 시 할인과 합쳐서 가치 상승"
+    },
+    {
+      "id": "Kingly Punch",
       "baseTier": "C",
       "synergies": [
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "Pretty bad. Four 에너지 deal 24, discounts when 드로우n. Not unpickable if desperate for 피해, but not great"
-    },
-    {
-      "id": "Kingly Punch",
-      "baseTier": "D",
-      "synergies": [
-        "damage"
-      ],
-      "antiSynergies": [],
-      "notes": "Worse version of Kingly Kick. Worse rampage, doesn't frontload 피해. Just not that good"
+      "notes": "[v0.100.0 버프] 기본 8→10, 스케일링 3(5)→4(6). 수치 개선으로 스케일링 공격으로서 가치 상승"
     },
     {
       "id": "Knockout Blow",
@@ -609,13 +612,13 @@
     },
     {
       "id": "Parry",
-      "baseTier": "D",
+      "baseTier": "C",
       "synergies": [
         "block",
         "forge"
       ],
       "antiSynergies": [],
-      "notes": "Gain 6 블록 when playing Sovereign Blade. Not that much, and blade 덱 isn't good"
+      "notes": "[v0.100.0 버프] 블록 6(9)→8(11). 블록 수치 개선으로 블레이드 덱에서 쓸만해짐"
     },
     {
       "id": "Particle Wall",
@@ -636,7 +639,7 @@
         "block"
       ],
       "antiSynergies": [],
-      "notes": "Numbers are okay. Thrown in C tier — not significant 유틸, just a 블록 카드"
+      "notes": "[v0.100.0 버프] 블록 8(10)→9(11). 소폭 상향"
     },
     {
       "id": "Photon Cut",
@@ -777,7 +780,7 @@
         "stellar"
       ],
       "antiSynergies": [],
-      "notes": "Decent 피해 일반, similar to Gather Light but 블록 is better than 피해. Tiny bit lower"
+      "notes": "[v0.100.0 버프] 피해 8(9)→9(10). 소폭 상향"
     },
     {
       "id": "Spectrum Shift",
@@ -796,7 +799,7 @@
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "Awful. Forge 10 is just not great, don't want to be doing the forge thing"
+      "notes": "[v0.100.0 버프] 단조 10(15)→12(17). 소폭 상향이지만 단조 자체가 약함"
     },
     {
       "id": "Stardust",
@@ -877,13 +880,13 @@
     },
     {
       "id": "Void Form",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "scaling",
         "stellar"
       ],
       "antiSynergies": [],
-      "notes": "One of the best 카드s on the class. Like Echo Form — first two 카드s free (cheats star 코스트s too). You probably just win"
+      "notes": "[v0.100.0 너프] 이제 에테리얼 키워드 추가 (업그레이드 시 에테리얼 제거). 플레이하지 않으면 소멸됨. 여전히 강력하지만 더 이상 '뽑으면 이기는' 카드가 아님"
     },
     {
       "id": "Wrought In War",
@@ -893,7 +896,7 @@
         "forge"
       ],
       "antiSynergies": [],
-      "notes": "Does enough 피해 for 초반 game. Throw this up in B — not building forge around it but helps if dying to elites"
+      "notes": "[v0.100.0 버프] 단조 5(7)→7(9). 초반 피해 개선"
     }
   ]
 }

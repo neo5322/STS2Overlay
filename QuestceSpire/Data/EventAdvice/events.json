@@ -656,7 +656,7 @@
         {
           "label": "Cut through (event combat, then reward)",
           "defaultRating": "good",
-          "notes": "The combat is usually worth the reward. Treat it like a slightly easier elite encounter.",
+          "notes": "[v0.100.0] 새 옵션 추가: 'Trudge On' (HP 8 잃고 골드 61-99 획득). 전투 보상은 여전히 가치 있음.",
           "conditions": [
             {
               "when": "low_hp",
@@ -712,7 +712,7 @@
         {
           "label": "카드 변형",
           "defaultRating": "good",
-          "notes": "Transforming a weak card like Strike can yield a powerful replacement. High upside with manageable risk.",
+          "notes": "[v0.100.0 변경] 변형 가능한 카드 2장 이상 필요, 모든 골드 소비, 이제 협동 이벤트. 골드가 많으면 주의.",
           "conditions": [
             {
               "when": "small_deck",

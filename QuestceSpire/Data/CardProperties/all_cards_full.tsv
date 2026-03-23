@@ -390,7 +390,7 @@ PoorSleep	PoorSleep	curse	Curse	Curse	-1	0	Unplayable,Retain
 Pounce	Pounce	silent	Attack	Uncommon	2	2		
 PreciseCut	PreciseCut	silent	Attack	Uncommon	0	2		
 Predator	Predator	silent	Attack	Uncommon	2	2		
-Prepared	Prepared	silent	Skill	Common	0	1		
+Prepare	Prepare	silent	Skill	Common	1	1
 PrepTime	PrepTime	colorless	Power	Uncommon	1	1		
 PrimalForce	PrimalForce	ironclad	Skill	Rare	0	1		
 Production	Production	colorless	Skill	Uncommon	0	1	Exhaust,Sly	
