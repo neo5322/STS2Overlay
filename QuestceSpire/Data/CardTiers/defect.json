@@ -1,6 +1,8 @@
 {
   "character": "defect",
   "source": "https://www.youtube.com/watch?v=_SMfBDBTyo0",
+  "patchVersion": "v0.100.0",
+  "lastUpdated": "2026-03-23",
   "cards": [
     {
       "id": "Strike Defect",
@@ -480,14 +482,14 @@
     },
     {
       "id": "Hotfix",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "focus",
         "zero_cost",
         "orb"
       ],
       "antiSynergies": [],
-      "notes": "Best temp 집중 카드. Zero 에너지, gain 2 집중 this turn (업그레이드s to 3). Common rarity. Bonkers"
+      "notes": "[v0.100.0 너프] 이제 소멸 키워드 추가 (업그레이드 시 소멸 제거). 1회용이 됨. 여전히 0코스트 집중은 강력하지만 반복 사용 불가"
     },
     {
       "id": "Hyperbeam",
@@ -684,13 +686,13 @@
     },
     {
       "id": "Rocket Punch",
-      "baseTier": "B",
+      "baseTier": "A",
       "synergies": [
         "damage",
         "draw"
       ],
       "antiSynergies": [],
-      "notes": "Deal 13 드로우 1; goes to zero 코스트 when status created. Combos with turbo"
+      "notes": "[v0.100.0 버프] 코스트 감소가 이제 플레이할 때까지 유지 (턴 종료 시 사라지지 않음). 턴보 콤보 훨씬 유연해짐"
     },
     {
       "id": "Scavenge",

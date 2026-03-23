@@ -1,6 +1,8 @@
 {
   "character": "ironclad",
   "source": "https://www.youtube.com/watch?v=GFc8Bh2RYvI",
+  "patchVersion": "v0.100.0",
+  "lastUpdated": "2026-03-23",
   "cards": [
     {
       "id": "Strike Ironclad",
@@ -142,13 +144,13 @@
     },
     {
       "id": "Break",
-      "baseTier": "C",
+      "baseTier": "B",
       "synergies": [
         "damage",
         "vulnerable"
       ],
       "antiSynergies": [],
-      "notes": "Ancient boon. 2-코스트 20 피해 + 5 vuln. Not needed when infinite by act 2, worse than other boon options"
+      "notes": "[v0.100.0 버프] 코스트 2→1, 피해 20(30). 1코스트로 훨씬 효율적. 무한이 어려워진 메타에서 가치 상승"
     },
     {
       "id": "Breakthrough",
@@ -199,7 +201,7 @@
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "2-코스트 17 피해, 소멸 top of 드로우 pile. No control over what gets 소멸ed, can brick your run"
+      "notes": "[v0.100.0 버프] 피해 17(22)→18(24). 소수점 버프, 여전히 드로우 파일 소멸 리스크 있음"
     },
     {
       "id": "Colossus",
@@ -292,13 +294,13 @@
     },
     {
       "id": "Dominate",
-      "baseTier": "D",
+      "baseTier": "C",
       "synergies": [
         "vulnerable",
         "strength"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 gain str per vuln on enemy, 소멸. Draw order reliant, you'd rather just play a 스트라이크"
+      "notes": "[v0.100.0 리워크] 이제 1(2) 취약 부여 후 취약 수만큼 힘 획득. 이전보다 나아졌지만 여전히 니치. Bash 시너지 있음"
     },
     {
       "id": "Drum Of Battle",
@@ -322,14 +324,14 @@
     },
     {
       "id": "Expect A Fight",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "block",
         "strength",
         "scaling"
       ],
       "antiSynergies": [],
-      "notes": "2-코스트 gain 에너지 per 공격 in hand. Makes 5-7 에너지/turn. Reusable. Disgusting 에너지 generation"
+      "notes": "[v0.100.0 너프] 이제 '이번 턴 추가 에너지 획득 불가' 제한 추가. 여전히 강하지만 다른 에너지원과 중복 불가"
     },
     {
       "id": "Feed",
@@ -370,7 +372,7 @@
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "2-코스트 deal 5x2, gain 2 str, enemy gains 1 str. Buffs enemy. Makes run harder. 절대 미선택"
+      "notes": "[v0.100.0 버프] 힘 획득 2(3)→3(4). 여전히 적에게 힘 부여하므로 비추천"
     },
     {
       "id": "Flame Barrier",
@@ -383,13 +385,13 @@
     },
     {
       "id": "Forgotten Ritual",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "exhaust",
         "scaling"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 gain 3 에너지 if 소멸ed this turn. Upgrades to 4 (net +3). Infinite 에너지 generation. Broken"
+      "notes": "[v0.100.0 너프] 이제 소멸됨 (1회용). 무한 에너지 생성 불가. 여전히 한 번의 3에너지 버스트는 강력하지만 반복 불가"
     },
     {
       "id": "Grapple",
@@ -437,7 +439,7 @@
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 lose 2 HP deal 14. Big 초반 피해, combos with Bash vuln. Not exceptional like Spire 1"
+      "notes": "[v0.100.0 버프] 피해 14(19)→15(20). 소폭 상향, 초반 게임 여전히 안정적"
     },
     {
       "id": "Howl From Beyond",
@@ -680,14 +682,14 @@
     },
     {
       "id": "Spite",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "damage",
         "self_damage",
-        "draw"
+        "multi_hit"
       ],
       "antiSynergies": [],
-      "notes": "0-코스트 6 피해, 드로우 1 on HP loss. Infinite with 2 Spites + Bloodletting. At worst it's Anger. Pick on sight"
+      "notes": "[v0.100.0 리워크] 피해 6→5, 드로우 대신 2(3)회 타격으로 변경. 무한 루프 비활성화됨. 여전히 좋은 0코스트 공격이지만 S급은 아님"
     },
     {
       "id": "Stampede",
@@ -700,13 +702,13 @@
     },
     {
       "id": "Stoke",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "exhaust",
         "draw"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 소멸 hand, 드로우 equal 카드s, 소멸. Fiend Fire + Dark Embrace on ONE 카드. Upgrades to 0-코스트. Insane"
+      "notes": "[v0.100.0 리워크] 드로우 대신 랜덤 업그레이드된 카드를 손에 추가. 이전보다 약해졌지만 여전히 소멸+카드 생성 유틸 있음"
     },
     {
       "id": "Stomp",
@@ -793,7 +795,7 @@
         "vulnerable"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 apply 2 vuln. Better vuln options exist. Bottom of C"
+      "notes": "[v0.100.0 버프] 취약 2(3)→3(4). 소폭 상향되었지만 여전히 더 좋은 취약 옵션 존재"
     },
     {
       "id": "True Grit",

@@ -1,6 +1,8 @@
 {
   "character": "necrobinder",
   "source": "https://www.youtube.com/watch?v=-1gZiFN7heQ",
+  "patchVersion": "v0.100.0",
+  "lastUpdated": "2026-03-23",
   "cards": [
     {
       "id": "Strike Necrobinder",
@@ -53,14 +55,14 @@
     },
     {
       "id": "Banshees Cry",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "aoe",
         "damage",
         "ethereal"
       ],
       "antiSynergies": [],
-      "notes": "33 광역 for 6 에너지, reduced by 2 per ethereal played. Often 33 to all for 0 since good 카드s happen to be ethereal. Wins long fights"
+      "notes": "[v0.100.0 너프] 코스트 6→9(7), 업그레이드 시 피해 증가 삭제. 0코스트 달성이 훨씬 어려워짐. 여전히 강하지만 이전만큼 쉽게 터지지 않음"
     },
     {
       "id": "Blight Strike",
@@ -86,13 +88,13 @@
     },
     {
       "id": "Borrowed Time",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "energy",
         "infinite"
       ],
       "antiSynergies": [],
-      "notes": "0 에너지 gain 1 에너지, apply 3 doom to self. Doom on self barely matters. Two-카드 infinite with Capture Spirit. Upgrade to 2 에너지 makes any 덱 infinite"
+      "notes": "[v0.100.0 너프] 자가 파멸 3→6(3), 에너지 획득 업그레이드 삭제. 자가 파멸 6은 위험 수준. 무한 조합은 가능하지만 더 빡빡해짐"
     },
     {
       "id": "Bury",
@@ -125,14 +127,14 @@
     },
     {
       "id": "Capture Spirit",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "soul",
         "damage",
         "infinite"
       ],
       "antiSynergies": [],
-      "notes": "1 에너지, enemy loses 3 HP, add 3 souls to 드로우 pile. Two-카드 infinite with Borrowed Time. 6 드로우 worth of stuff for 1 에너지. Completely overstated"
+      "notes": "[v0.100.0 너프] HP 손실 3(4)→2(3), 영혼 3(4)→2(3). 피해와 영혼 모두 감소. 무한 조합은 가능하지만 효율 하락"
     },
     {
       "id": "Cleanse",
@@ -162,7 +164,7 @@
         "block"
       ],
       "antiSynergies": [],
-      "notes": "1 에너지 파워: gain 3 블록 when playing 2+ 코스트 카드. Can't proc more than once per turn. Worse than Metallicize. So much work for no payoff"
+      "notes": "[v0.100.0 버프] 블록 3(4)→4(6). 소폭 상향이지만 여전히 메탈리사이즈보다 약함"
     },
     {
       "id": "Deathbringer",
@@ -204,7 +206,7 @@
         "debuff"
       ],
       "antiSynergies": [],
-      "notes": "1 에너지 deal 7, vuln+weak are 2x effective for 3 turns. 약한 now 블록s for half instead of 25%. Disgusting 카드. Invalidates enemy 피해 for 3 turns"
+      "notes": "[v0.100.0 버프] 피해 7(9)→10(12). 피해 대폭 상향. 디버프+피해 조합 더욱 강력해짐"
     },
     {
       "id": "Defile",
@@ -225,7 +227,7 @@
         "ethereal"
       ],
       "antiSynergies": [],
-      "notes": "1 에너지 ethereal gain 6 블록 + 1 weak. Best 일반 in the class. Upgraded: 2 weak 7 블록 = effectively 블록 20 for 1 에너지. Ethereal is pure upside. Take multiple copies. Slam on sight"
+      "notes": "[v0.100.0 변경] 업그레이드가 약화 증가 대신 블록 +3 제공. 여전히 클래스 최고의 일반 카드. 블록 특화로 변경됨"
     },
     {
       "id": "Delay",
@@ -261,7 +263,7 @@
     },
     {
       "id": "Dirge",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "soul",
         "summon",
@@ -269,7 +271,7 @@
         "scaling"
       ],
       "antiSynergies": [],
-      "notes": "X 코스트 summon 3 X times + add X souls to 드로우 pile. Main reason infinite is so easy. Scales 피해, 블록s, and adds 드로우 simultaneously. 'Durge slop' with Borrowed Time"
+      "notes": "[v0.100.0 너프] 이제 소멸됨 (1회용). 무한 루프의 핵심이었으나 1회용으로 큰 타격. 여전히 한 번의 대규모 소환+영혼은 강력"
     },
     {
       "id": "Drain Power",
@@ -414,7 +416,7 @@
         "summon"
       ],
       "antiSynergies": [],
-      "notes": "1 에너지 gain 8 블록 + add soul to 드로우 pile. Common. 8 블록 + 드로우 2 (via soul) is ridiculous value. Upgrades to soul+ (드로우 3) and 10 블록"
+      "notes": "[v0.100.0 변경] 업그레이드 블록 8→11, 영혼 업그레이드 삭제. 블록 수치 향상되었지만 영혼+ 못 받음"
     },
     {
       "id": "Hang",
@@ -709,11 +711,11 @@
         "ethereal"
       ],
       "antiSynergies": [],
-      "notes": "Deal 8 피해 + add ethereal to a 카드 in hand. Low 피해 number. Ethereal to hand doesn't work well with Page Storm. Weird 카드"
+      "notes": "[v0.100.0 버프] 피해 8(11)→9(12). 소폭 상향"
     },
     {
       "id": "Seance",
-      "baseTier": "S",
+      "baseTier": "A",
       "synergies": [
         "soul",
         "infinite",
@@ -721,7 +723,7 @@
         "ethereal"
       ],
       "antiSynergies": [],
-      "notes": "0 에너지 ethereal: transform a 카드 in 드로우 pile into a soul. Immediately enables infinite. Exhausts itself when 덱 is empty. 'Don't know why this is in the game'"
+      "notes": "[v0.100.0 너프] 코스트 0→1(0). 업그레이드 시에만 0코스트. 무한 진입 속도 저하, 하지만 업그레이드 시 여전히 강력"
     },
     {
       "id": "Sentry Mode",

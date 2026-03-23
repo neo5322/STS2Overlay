@@ -33,13 +33,13 @@
     },
     {
       "id": "Beacon Of Hope",
-      "baseTier": "B",
+      "baseTier": "C",
       "synergies": [
         "scaling",
         "block"
       ],
       "antiSynergies": [],
-      "notes": "Rare 파워, 1-코스트. Defensive 스케일링 but expensive as a 레어 slot"
+      "notes": "[v0.100.0 너프] 이제 스택 불가. 멀티플레이어 너프 영향, 솔로에서도 가치 하락"
     },
     {
       "id": "Beat Down",
@@ -52,12 +52,12 @@
     },
     {
       "id": "Believe In You",
-      "baseTier": "B",
+      "baseTier": "C",
       "synergies": [
         "scaling"
       ],
       "antiSynergies": [],
-      "notes": "0-코스트 스킬. Free buff application, decent support"
+      "notes": "[v0.100.0 너프] 에너지 3(4)→2(3). 에너지 부여 감소"
     },
     {
       "id": "Bolas",
@@ -110,12 +110,13 @@
     },
     {
       "id": "Discovery",
-      "baseTier": "B",
+      "baseTier": "A",
       "synergies": [
-        "exhaust"
+        "exhaust",
+        "stellar"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트, choose from 3 카드s to add to hand, 소멸. Flexible 유틸"
+      "notes": "[v0.100.0 버프] '이번 턴 무료 플레이'가 이제 별 비용도 포함. 리전트에서 특히 강력해짐"
     },
     {
       "id": "Dramatic Entrance",
@@ -150,13 +151,13 @@
     },
     {
       "id": "Eternal Armor",
-      "baseTier": "B",
+      "baseTier": "A",
       "synergies": [
         "block",
         "scaling"
       ],
       "antiSynergies": [],
-      "notes": "3-코스트 레어 파워. Permanent 블록 스케일링, expensive but lasting value"
+      "notes": "[v0.100.0 버프] 도금 7(9)→9(12). 수치 대폭 향상. 영구 블록 스케일링으로 장기전 가치 상승"
     },
     {
       "id": "Fasten",
@@ -230,22 +231,23 @@
     },
     {
       "id": "Hidden Gem",
-      "baseTier": "B",
+      "baseTier": "C",
       "synergies": [
         "draw"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 레어 스킬. Provides 카드 selection or 드로우 advantage"
+      "notes": "[v0.100.0 너프] 이제 전투 중 생성 불가. Jack of All Trades 등으로 획득 불가. 샵/이벤트에서만 획득 가능"
     },
     {
       "id": "Huddle Up",
-      "baseTier": "B",
+      "baseTier": "C",
       "synergies": [
         "block",
-        "draw"
+        "draw",
+        "exhaust"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 스킬. Block + 드로우, solid defensive 유틸"
+      "notes": "[v0.100.0 너프] 이제 소멸됨. 멀티플레이어 너프 영향. 1회용으로 가치 하락"
     },
     {
       "id": "Impatience",
@@ -404,7 +406,7 @@
         "energy"
       ],
       "antiSynergies": [],
-      "notes": "0-코스트 스킬, 소멸. Free 카드 generation or resource production"
+      "notes": "[v0.100.0 변경] 업그레이드가 소멸 제거 대신 +1 에너지. 소멸은 유지되지만 에너지 보너스 추가"
     },
     {
       "id": "Prolong",
@@ -521,12 +523,12 @@
     },
     {
       "id": "Seeker Strike",
-      "baseTier": "C",
+      "baseTier": "B",
       "synergies": [
         "damage"
       ],
       "antiSynergies": [],
-      "notes": "1-코스트 un일반 공격. Generic 스트라이크 변형, nothing special"
+      "notes": "[v0.100.0 버프] 피해 6(9)→9(12). 무색 공격 중 괜찮은 효율이 됨"
     },
     {
       "id": "Shockwave",
