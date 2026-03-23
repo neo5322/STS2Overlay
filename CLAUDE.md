@@ -24,6 +24,7 @@ QuestceSpire/                 # Main C# project
 │   ├── CardPropertyScorer.cs # Card property evaluation
 │   ├── EventAdvisor.cs       # Event choice recommendations
 │   ├── EnemyAdvisor.cs       # Enemy threat assessment
+│   ├── RouteAdvisor.cs       # Map route recommendations (HP/gold/deck-based, 3-node lookahead, reflection map read) (247 lines)
 │   ├── RunSummary.cs         # Post-run analysis engine (combat stats, card usage, community comparison)
 │   └── ...data classes       # ScoredCard, ScoredRelic, ArchetypeMatch, etc.
 ├── GameBridge/               # Game API abstraction
@@ -43,7 +44,8 @@ QuestceSpire/                 # Main C# project
 │   ├── RelicCardCrossRef.cs  # Relic-card co-occurrence win-rate pipeline + relic_card_cross DB table
 │   ├── RuntimeCardExtractor.cs  # sts2.dll reflection for auto-detecting new cards/relics
 │   ├── OfflineDataManager.cs # Disk cache, file verification, fallback loading, 30-day cleanup
-│   ├── SpireCodexSync.cs     # Spire Codex API sync (cards/relics/potions)
+│   ├── SpireCodexSync.cs     # Spire Codex API sync (cards/relics/potions/encounters/events/enchantments/powers) (281 lines)
+│   ├── CommunityApiClient.cs # STS2.fun + sts2-advisor parallel API fetch, weighted merge, 6h disk cache (312 lines)
 │   ├── PatchNotesTracker.cs  # Steam patch note parsing → balance changes
 │   ├── SteamLeaderboardSync.cs  # Global leaderboard stats cache
 │   ├── CoPickSynergyComputer.cs # Card pair co-occurrence win-rate analysis
@@ -61,7 +63,8 @@ QuestceSpire/                 # Main C# project
 │   ├── OverlayManager.Builder.cs  # UI element construction (739 lines)
 │   ├── OverlayManager.Stats.cs    # History, deck viz, win rate, run summary (1,025 lines)
 │   ├── OverlayManager.Badges.cs   # In-game card/relic badges (463 lines)
-│   └── OverlayManager.Settings.cs # Settings menu (300 lines)
+│   ├── OverlayManager.Route.cs    # Map route advice UI (safe/aggressive/balanced strategies) (288 lines)
+│   └── OverlayManager.Settings.cs # Settings menu (324 lines)
 ├── Data/                     # JSON/TSV data files
 │   ├── archetypes.json       # Character archetype definitions
 │   ├── scoring_config.json   # Scoring weights
@@ -112,6 +115,7 @@ The UI is split by concern into partial classes sharing the same field set:
 - **Builder**: `AddCardEntry()`, `AddRelicEntry()`, `AddSectionHeader()`, etc.
 - **Stats**: `AddDecisionHistory()`, `AddInlineDeckViz()`, `UpdateWinRate()`, etc.
 - **Badges**: `InjectCardGrades()`, `AttachGradeBadge()`, cleanup
+- **Route**: `ShowRouteAdvice()`, safe/aggressive/balanced strategy rendering
 - **Settings**: `BuildSettingsMenu()`, toggle handlers
 
 ### Key Patterns
