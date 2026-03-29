@@ -72,7 +72,7 @@ public partial class OverlayManager
 		scroll.MouseFilter = Control.MouseFilterEnum.Stop;
 
 		VBoxContainer scrollContent = new VBoxContainer();
-		scrollContent.AddThemeConstantOverride("separation", 6);
+		scrollContent.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		scrollContent.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		scroll.AddChild(scrollContent, forceReadableName: false, Node.InternalMode.Disabled);
 
@@ -131,20 +131,10 @@ public partial class OverlayManager
 		};
 
 		PanelContainer entryPanel = new PanelContainer();
-		StyleBoxFlat entryStyle = new StyleBoxFlat();
-		entryStyle.BgColor = new Color(0.04f, 0.06f, 0.1f, 0.5f);
-		entryStyle.CornerRadiusTopRight = 6;
-		entryStyle.CornerRadiusBottomRight = 6;
-		entryStyle.BorderWidthLeft = 3;
-		entryStyle.BorderColor = borderColor;
-		entryStyle.ContentMarginLeft = 10f;
-		entryStyle.ContentMarginRight = 8f;
-		entryStyle.ContentMarginTop = 4f;
-		entryStyle.ContentMarginBottom = 4f;
-		entryPanel.AddThemeStyleboxOverride("panel", entryStyle);
+		entryPanel.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(borderColor));
 
 		VBoxContainer vbox = new VBoxContainer();
-		vbox.AddThemeConstantOverride("separation", 1);
+		vbox.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 		entryPanel.AddChild(vbox, forceReadableName: false, Node.InternalMode.Disabled);
 
 		// Main line: chosen card/relic with grade
@@ -172,7 +162,7 @@ public partial class OverlayManager
 			altLine.Text = $"  over {string.Join(", ", altParts)}";
 			ApplyFont(altLine, _fontBody);
 			altLine.AddThemeColorOverride("font_color", ClrSub);
-			altLine.AddThemeFontSizeOverride("font_size", 17);
+			altLine.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 			altLine.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
 			vbox.AddChild(altLine, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -214,7 +204,7 @@ public partial class OverlayManager
 		Label deckHeader = new Label();
 		deckHeader.Text = $"내 덱 ({analysis.TotalCards}장)";
 		ApplyFont(deckHeader, _fontBold);
-		deckHeader.AddThemeFontSizeOverride("font_size", 15);
+		deckHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		deckHeader.AddThemeColorOverride("font_color", ClrCream);
 		target.AddChild(deckHeader, forceReadableName: false, Node.InternalMode.Disabled);
 		if (analysis.DetectedArchetypes != null && analysis.DetectedArchetypes.Count > 0)
@@ -227,7 +217,7 @@ public partial class OverlayManager
 				int pct = (int)(arch.Strength / totalStr * 100f);
 				Color ac = ArchColors[cIdx % ArchColors.Length];
 				HBoxContainer aRow = new HBoxContainer();
-				aRow.AddThemeConstantOverride("separation", 6);
+				aRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 				ColorRect aBar = new ColorRect();
 				aBar.Color = new Color(ac, 0.7f);
 				aBar.CustomMinimumSize = new Vector2(Math.Max(pct * 0.6f, 3f), 10f);
@@ -236,7 +226,7 @@ public partial class OverlayManager
 				aLbl.Text = $"{arch.Archetype.DisplayName}  {pct}%";
 				ApplyFont(aLbl, _fontBold);
 				aLbl.AddThemeColorOverride("font_color", ac);
-				aLbl.AddThemeFontSizeOverride("font_size", 13);
+				aLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 				aRow.AddChild(aLbl, forceReadableName: false, Node.InternalMode.Disabled);
 				target.AddChild(aRow, forceReadableName: false, Node.InternalMode.Disabled);
 				cIdx++;
@@ -248,7 +238,7 @@ public partial class OverlayManager
 			noArch.Text = "아키타입 방향 불명확";
 			ApplyFont(noArch, _fontBody);
 			noArch.AddThemeColorOverride("font_color", ClrSub);
-			noArch.AddThemeFontSizeOverride("font_size", 13);
+			noArch.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 			target.AddChild(noArch, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		AddInlineEnergyCurve(target, analysis);
@@ -266,7 +256,7 @@ public partial class OverlayManager
 		target.AddChild(curveHeader, forceReadableName: false, Node.InternalMode.Disabled);
 
 		HBoxContainer costRow = new HBoxContainer();
-		costRow.AddThemeConstantOverride("separation", 2);
+		costRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 		for (int cost = 0; cost <= 5; cost++)
 		{
 			Label costLbl = new Label();
@@ -281,7 +271,7 @@ public partial class OverlayManager
 		target.AddChild(costRow, forceReadableName: false, Node.InternalMode.Disabled);
 
 		HBoxContainer curveRow = new HBoxContainer();
-		curveRow.AddThemeConstantOverride("separation", 2);
+		curveRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 		curveRow.CustomMinimumSize = new Vector2(0, 18f);
 		int maxCount = analysis.EnergyCurve.Count > 0 ? analysis.EnergyCurve.Values.Max() : 1;
 		Color[] costColors = {
@@ -296,7 +286,7 @@ public partial class OverlayManager
 		{
 			int count = analysis.EnergyCurve.TryGetValue(cost, out int c) ? c : 0;
 			VBoxContainer col = new VBoxContainer();
-			col.AddThemeConstantOverride("separation", 1);
+			col.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 			col.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			float barHeight = maxCount > 0 ? (float)count / maxCount * 12f : 0f;
 			ColorRect bar = new ColorRect();
@@ -320,46 +310,46 @@ public partial class OverlayManager
 		int totalTyped = analysis.AttackCount + analysis.SkillCount + analysis.PowerCount;
 		if (totalTyped == 0) return;
 		HBoxContainer typeRow = new HBoxContainer();
-		typeRow.AddThemeConstantOverride("separation", 0);
-		typeRow.CustomMinimumSize = new Vector2(0, 8f);
+		typeRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
+		typeRow.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 		if (analysis.AttackCount > 0)
 		{
 			ColorRect atkBar = new ColorRect();
-			atkBar.Color = new Color(0.9f, 0.35f, 0.3f);
+			atkBar.Color = OverlayTheme.CardAttack;
 			atkBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			atkBar.SizeFlagsStretchRatio = analysis.AttackCount;
-			atkBar.CustomMinimumSize = new Vector2(0, 8f);
+			atkBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			typeRow.AddChild(atkBar, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.SkillCount > 0)
 		{
 			ColorRect sklBar = new ColorRect();
-			sklBar.Color = new Color(0.3f, 0.5f, 1f);
+			sklBar.Color = OverlayTheme.CardSkill;
 			sklBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			sklBar.SizeFlagsStretchRatio = analysis.SkillCount;
-			sklBar.CustomMinimumSize = new Vector2(0, 8f);
+			sklBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			typeRow.AddChild(sklBar, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.PowerCount > 0)
 		{
 			ColorRect pwrBar = new ColorRect();
-			pwrBar.Color = new Color(0.3f, 0.8f, 0.4f);
+			pwrBar.Color = OverlayTheme.CardPower;
 			pwrBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			pwrBar.SizeFlagsStretchRatio = analysis.PowerCount;
-			pwrBar.CustomMinimumSize = new Vector2(0, 8f);
+			pwrBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			typeRow.AddChild(pwrBar, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		target.AddChild(typeRow, forceReadableName: false, Node.InternalMode.Disabled);
 		HBoxContainer typeLblRow = new HBoxContainer();
-		typeLblRow.AddThemeConstantOverride("separation", 8);
+		typeLblRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		typeLblRow.Alignment = BoxContainer.AlignmentMode.Center;
 		if (analysis.AttackCount > 0)
 		{
 			Label atkLbl = new Label();
 			atkLbl.Text = $"{analysis.AttackCount} 공격";
 			ApplyFont(atkLbl, _fontBody);
-			atkLbl.AddThemeColorOverride("font_color", new Color(0.9f, 0.35f, 0.3f));
-			atkLbl.AddThemeFontSizeOverride("font_size", 15);
+			atkLbl.AddThemeColorOverride("font_color", OverlayTheme.CardAttack);
+			atkLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 			typeLblRow.AddChild(atkLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.SkillCount > 0)
@@ -367,8 +357,8 @@ public partial class OverlayManager
 			Label sklLbl = new Label();
 			sklLbl.Text = $"{analysis.SkillCount} 스킬";
 			ApplyFont(sklLbl, _fontBody);
-			sklLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.5f, 1f));
-			sklLbl.AddThemeFontSizeOverride("font_size", 15);
+			sklLbl.AddThemeColorOverride("font_color", OverlayTheme.CardSkill);
+			sklLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 			typeLblRow.AddChild(sklLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.PowerCount > 0)
@@ -376,8 +366,8 @@ public partial class OverlayManager
 			Label pwrLbl = new Label();
 			pwrLbl.Text = $"{analysis.PowerCount} 파워";
 			ApplyFont(pwrLbl, _fontBody);
-			pwrLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.8f, 0.4f));
-			pwrLbl.AddThemeFontSizeOverride("font_size", 15);
+			pwrLbl.AddThemeColorOverride("font_color", OverlayTheme.CardPower);
+			pwrLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 			typeLblRow.AddChild(pwrLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		target.AddChild(typeLblRow, forceReadableName: false, Node.InternalMode.Disabled);
@@ -412,7 +402,7 @@ public partial class OverlayManager
 
 			// Cost number row above bars
 			HBoxContainer costRow = new HBoxContainer();
-			costRow.AddThemeConstantOverride("separation", 2);
+			costRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 			for (int cost = 0; cost <= 5; cost++)
 			{
 				Label costLbl = new Label();
@@ -427,7 +417,7 @@ public partial class OverlayManager
 			_deckVizContainer.AddChild(costRow, forceReadableName: false, Node.InternalMode.Disabled);
 
 			HBoxContainer curveRow = new HBoxContainer();
-			curveRow.AddThemeConstantOverride("separation", 2);
+			curveRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 			curveRow.CustomMinimumSize = new Vector2(0, 18f);
 			int maxCount = analysis.EnergyCurve.Count > 0 ? analysis.EnergyCurve.Values.Max() : 1;
 			Color[] costColors = {
@@ -442,7 +432,7 @@ public partial class OverlayManager
 			{
 				int count = analysis.EnergyCurve.TryGetValue(cost, out int c) ? c : 0;
 				VBoxContainer col = new VBoxContainer();
-				col.AddThemeConstantOverride("separation", 1);
+				col.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 				col.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 
 				// Bar
@@ -471,51 +461,51 @@ public partial class OverlayManager
 		if (totalTyped > 0)
 		{
 			HBoxContainer typeRow = new HBoxContainer();
-			typeRow.AddThemeConstantOverride("separation", 0);
-			typeRow.CustomMinimumSize = new Vector2(0, 8f);
+			typeRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
+			typeRow.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			// Attack segment (red)
 			if (analysis.AttackCount > 0)
 			{
 				ColorRect atkBar = new ColorRect();
-				atkBar.Color = new Color(0.9f, 0.35f, 0.3f);
+				atkBar.Color = OverlayTheme.CardAttack;
 				atkBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 				atkBar.SizeFlagsStretchRatio = analysis.AttackCount;
-				atkBar.CustomMinimumSize = new Vector2(0, 8f);
+				atkBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 				typeRow.AddChild(atkBar, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			// Skill segment (blue)
 			if (analysis.SkillCount > 0)
 			{
 				ColorRect sklBar = new ColorRect();
-				sklBar.Color = new Color(0.3f, 0.5f, 1f);
+				sklBar.Color = OverlayTheme.CardSkill;
 				sklBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 				sklBar.SizeFlagsStretchRatio = analysis.SkillCount;
-				sklBar.CustomMinimumSize = new Vector2(0, 8f);
+				sklBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 				typeRow.AddChild(sklBar, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			// Power segment (green)
 			if (analysis.PowerCount > 0)
 			{
 				ColorRect pwrBar = new ColorRect();
-				pwrBar.Color = new Color(0.3f, 0.8f, 0.4f);
+				pwrBar.Color = OverlayTheme.CardPower;
 				pwrBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 				pwrBar.SizeFlagsStretchRatio = analysis.PowerCount;
-				pwrBar.CustomMinimumSize = new Vector2(0, 8f);
+				pwrBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 				typeRow.AddChild(pwrBar, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			_deckVizContainer.AddChild(typeRow, forceReadableName: false, Node.InternalMode.Disabled);
 
 			// Type labels — color-matched
 			HBoxContainer typeLblRow = new HBoxContainer();
-			typeLblRow.AddThemeConstantOverride("separation", 8);
+			typeLblRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 			typeLblRow.Alignment = BoxContainer.AlignmentMode.Center;
 			if (analysis.AttackCount > 0)
 			{
 				Label atkLbl = new Label();
 				atkLbl.Text = $"{analysis.AttackCount} 공격";
 				ApplyFont(atkLbl, _fontBody);
-				atkLbl.AddThemeColorOverride("font_color", new Color(0.9f, 0.35f, 0.3f));
-				atkLbl.AddThemeFontSizeOverride("font_size", 17);
+				atkLbl.AddThemeColorOverride("font_color", OverlayTheme.CardAttack);
+				atkLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				typeLblRow.AddChild(atkLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			if (analysis.SkillCount > 0)
@@ -523,8 +513,8 @@ public partial class OverlayManager
 				Label sklLbl = new Label();
 				sklLbl.Text = $"{analysis.SkillCount} 스킬";
 				ApplyFont(sklLbl, _fontBody);
-				sklLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.5f, 1f));
-				sklLbl.AddThemeFontSizeOverride("font_size", 17);
+				sklLbl.AddThemeColorOverride("font_color", OverlayTheme.CardSkill);
+				sklLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				typeLblRow.AddChild(sklLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			if (analysis.PowerCount > 0)
@@ -532,8 +522,8 @@ public partial class OverlayManager
 				Label pwrLbl = new Label();
 				pwrLbl.Text = $"{analysis.PowerCount} 파워";
 				ApplyFont(pwrLbl, _fontBody);
-				pwrLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.8f, 0.4f));
-				pwrLbl.AddThemeFontSizeOverride("font_size", 17);
+				pwrLbl.AddThemeColorOverride("font_color", OverlayTheme.CardPower);
+				pwrLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				typeLblRow.AddChild(pwrLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			_deckVizContainer.AddChild(typeLblRow, forceReadableName: false, Node.InternalMode.Disabled);
@@ -688,23 +678,13 @@ public partial class OverlayManager
 					foreach (var d in reviewed.Where(d => !d.WasBetterChoice.GetValueOrDefault(true)).Take(5))
 					{
 						PanelContainer dPanel = new PanelContainer();
-						StyleBoxFlat dStyle = new StyleBoxFlat();
-						dStyle.BgColor = new Color(ClrNegative, 0.08f);
-						dStyle.CornerRadiusTopRight = 6;
-						dStyle.CornerRadiusBottomRight = 6;
-						dStyle.BorderWidthLeft = 3;
-						dStyle.BorderColor = ClrNegative;
-						dStyle.ContentMarginLeft = 10f;
-						dStyle.ContentMarginRight = 8f;
-						dStyle.ContentMarginTop = 4f;
-						dStyle.ContentMarginBottom = 4f;
-						dPanel.AddThemeStyleboxOverride("panel", dStyle);
+						dPanel.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(ClrNegative));
 
 						Label dLbl = new Label();
 						dLbl.Text = $"F{d.Floor} [{d.EventType}]: {d.Feedback}";
 						ApplyFont(dLbl, _fontBody);
 						dLbl.AddThemeColorOverride("font_color", ClrCream);
-						dLbl.AddThemeFontSizeOverride("font_size", 13);
+						dLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 						dLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 						dPanel.AddChild(dLbl, forceReadableName: false, Node.InternalMode.Disabled);
 						_content.AddChild(dPanel, forceReadableName: false, Node.InternalMode.Disabled);
@@ -748,22 +728,12 @@ public partial class OverlayManager
 					string bestName = bestId != null ? PrettifyId(bestId) : "?";
 					int gap = (int)bestGrade - (int)chosenGrade;
 					PanelContainer cPanel = new PanelContainer();
-					StyleBoxFlat cStyle = new StyleBoxFlat();
-					cStyle.BgColor = new Color(outcomeColor, 0.08f);
-					cStyle.CornerRadiusTopRight = 6;
-					cStyle.CornerRadiusBottomRight = 6;
-					cStyle.BorderWidthLeft = 3;
-					cStyle.BorderColor = outcomeColor;
-					cStyle.ContentMarginLeft = 10f;
-					cStyle.ContentMarginRight = 8f;
-					cStyle.ContentMarginTop = 4f;
-					cStyle.ContentMarginBottom = 4f;
-					cPanel.AddThemeStyleboxOverride("panel", cStyle);
+					cPanel.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(outcomeColor));
 					Label cLbl = new Label();
 					cLbl.Text = $"F{evt.Floor}: {chosen} [{chosenGrade}] \u2014 Best: {bestName} [{bestGrade}] ({gap} grades)";
 					ApplyFont(cLbl, _fontBody);
 					cLbl.AddThemeColorOverride("font_color", outcomeColor);
-					cLbl.AddThemeFontSizeOverride("font_size", 13);
+					cLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 					cLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 					cPanel.AddChild(cLbl, forceReadableName: false, Node.InternalMode.Disabled);
 					_content.AddChild(cPanel, forceReadableName: false, Node.InternalMode.Disabled);
@@ -817,19 +787,19 @@ public partial class OverlayManager
 	private void AddStatRow(string label, string value, Color valueColor)
 	{
 		HBoxContainer row = new HBoxContainer();
-		row.AddThemeConstantOverride("separation", 8);
+		row.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		Label lbl = new Label();
 		lbl.Text = label;
 		ApplyFont(lbl, _fontBody);
 		lbl.AddThemeColorOverride("font_color", ClrSub);
-		lbl.AddThemeFontSizeOverride("font_size", 13);
+		lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		lbl.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		row.AddChild(lbl, forceReadableName: false, Node.InternalMode.Disabled);
 		Label val = new Label();
 		val.Text = value;
 		ApplyFont(val, _fontBold);
 		val.AddThemeColorOverride("font_color", valueColor);
-		val.AddThemeFontSizeOverride("font_size", 13);
+		val.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		row.AddChild(val, forceReadableName: false, Node.InternalMode.Disabled);
 		_content.AddChild(row, forceReadableName: false, Node.InternalMode.Disabled);
 	}
@@ -853,22 +823,13 @@ public partial class OverlayManager
 		scroll.SizeFlagsVertical = Control.SizeFlags.Fill;
 
 		VBoxContainer scrollContent = new VBoxContainer();
-		scrollContent.AddThemeConstantOverride("separation", 4);
+		scrollContent.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 		scrollContent.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		scroll.AddChild(scrollContent, forceReadableName: false, Node.InternalMode.Disabled);
 
 		foreach (var evt in meaningful)
 		{
 			PanelContainer entry = new PanelContainer();
-			StyleBoxFlat style = new StyleBoxFlat();
-			style.BgColor = new Color(0.04f, 0.06f, 0.1f, 0.5f);
-			style.CornerRadiusTopRight = 6;
-			style.CornerRadiusBottomRight = 6;
-			style.BorderWidthLeft = 3;
-			style.ContentMarginLeft = 10f;
-			style.ContentMarginRight = 8f;
-			style.ContentMarginTop = 3f;
-			style.ContentMarginBottom = 3f;
 
 			// Color border by decision quality
 			Color borderClr = ClrSub;
@@ -879,11 +840,10 @@ public partial class OverlayManager
 				int gap = (int)best - (int)chosen;
 				borderClr = gap == 0 ? ClrPositive : gap == 1 ? ClrAccent : ClrNegative;
 			}
-			style.BorderColor = borderClr;
-			entry.AddThemeStyleboxOverride("panel", style);
+			entry.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(borderClr));
 
 			VBoxContainer vbox = new VBoxContainer();
-			vbox.AddThemeConstantOverride("separation", 1);
+			vbox.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 			entry.AddChild(vbox, forceReadableName: false, Node.InternalMode.Disabled);
 
 			// Line 1: Floor + event type + chosen
@@ -902,7 +862,7 @@ public partial class OverlayManager
 			mainLine.Text = $"{typeIcon} F{evt.Floor}: {chosenName} [{chosenGrade}]";
 			ApplyFont(mainLine, _fontBold);
 			mainLine.AddThemeColorOverride("font_color", borderClr);
-			mainLine.AddThemeFontSizeOverride("font_size", 13);
+			mainLine.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 			mainLine.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
 			vbox.AddChild(mainLine, forceReadableName: false, Node.InternalMode.Disabled);
 
@@ -928,7 +888,7 @@ public partial class OverlayManager
 			offeredLine.Text = string.Join("  ", parts);
 			ApplyFont(offeredLine, _fontBody);
 			offeredLine.AddThemeColorOverride("font_color", ClrSub);
-			offeredLine.AddThemeFontSizeOverride("font_size", 11);
+			offeredLine.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			offeredLine.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
 			vbox.AddChild(offeredLine, forceReadableName: false, Node.InternalMode.Disabled);
 

@@ -125,36 +125,22 @@ public partial class OverlayManager
 
 	// _archChipVBox removed — deck info lives in DECK BREAKDOWN section
 
-	// STS2 color palette (matched from game scenes/DLL)
-	private static readonly Color ClrBg = new Color(0.034f, 0.057f, 0.11f, 0.97f);
-
-	private static readonly Color ClrBorder = new Color(0.624f, 0.490f, 0.322f);
-
-	private static readonly Color ClrHeader = new Color(0.92f, 0.78f, 0.35f);
-
-	private static readonly Color ClrAccent = new Color(0.831f, 0.714f, 0.357f);
-
-	private static readonly Color ClrSub = new Color(0.580f, 0.545f, 0.404f);
-
-	private static readonly Color ClrPositive = new Color(0.3f, 0.8f, 0.4f);
-
-	private static readonly Color ClrNegative = new Color(0.9f, 0.35f, 0.3f);
-
-	private static readonly Color ClrNotes = new Color(0.72f, 0.68f, 0.6f);
-
-	private static readonly Color ClrSkip = new Color(0.557f, 0.212f, 0.882f);
-
-	private static readonly Color ClrExpensive = new Color(1f, 0.6f, 0.3f);
-
-	private static readonly Color ClrHover = new Color(0.1f, 0.12f, 0.2f, 0.8f);
-
-	private static readonly Color ClrSkipSub = new Color(0.6f, 0.6f, 0.8f);
-
-	private static readonly Color ClrAqua = new Color(0.529f, 0.808f, 0.922f);
-
-	private static readonly Color ClrOutline = new Color(0.02f, 0.02f, 0.04f);
-
-	private static readonly Color ClrCream = new Color(0.92f, 0.88f, 0.78f);
+	// Color aliases — delegate to centralized OverlayTheme tokens
+	private static readonly Color ClrBg = OverlayTheme.BgPanel;
+	private static readonly Color ClrBorder = OverlayTheme.Border;
+	private static readonly Color ClrHeader = OverlayTheme.TextHeader;
+	private static readonly Color ClrAccent = OverlayTheme.TextAccent;
+	private static readonly Color ClrSub = OverlayTheme.TextSub;
+	private static readonly Color ClrPositive = OverlayTheme.Positive;
+	private static readonly Color ClrNegative = OverlayTheme.Negative;
+	private static readonly Color ClrNotes = OverlayTheme.TextNotes;
+	private static readonly Color ClrSkip = OverlayTheme.Skip;
+	private static readonly Color ClrExpensive = OverlayTheme.Warning;
+	private static readonly Color ClrHover = OverlayTheme.Hover;
+	private static readonly Color ClrSkipSub = OverlayTheme.SkipSub;
+	private static readonly Color ClrAqua = OverlayTheme.Info;
+	private static readonly Color ClrOutline = OverlayTheme.Outline;
+	private static readonly Color ClrCream = OverlayTheme.TextBody;
 
 	// Game fonts (loaded from res://fonts/)
 	private Font _fontBody;
@@ -314,6 +300,9 @@ public partial class OverlayManager
 			label.AddThemeFontOverride("font", font);
 	}
 
+	private void StyleLabel(Label label, Font font, int fontSize, Color color)
+		=> OverlayStyles.StyleLabel(label, font, fontSize, color);
+
 	private bool IsOverlayValid()
 	{
 		if (_layer != null && GodotObject.IsInstanceValid(_layer) && _panel != null && GodotObject.IsInstanceValid(_panel) && _content != null)
@@ -404,85 +393,14 @@ public partial class OverlayManager
 
 	private void InitializeStyles()
 	{
-		_sbPanel = new StyleBoxFlat();
-		_sbPanel.BgColor = ClrBg;
-		_sbPanel.BorderWidthTop = 3;
-		_sbPanel.BorderWidthLeft = 3;
-		_sbPanel.BorderWidthRight = 1;
-		_sbPanel.BorderWidthBottom = 1;
-		_sbPanel.BorderColor = ClrBorder;
-		_sbPanel.CornerRadiusTopLeft = 0;
-		_sbPanel.CornerRadiusTopRight = 18;
-		_sbPanel.CornerRadiusBottomLeft = 18;
-		_sbPanel.CornerRadiusBottomRight = 0;
-		StyleBoxFlat sbPanel3 = _sbPanel;
-		float contentMarginLeft = (_sbPanel.ContentMarginRight = 20f);
-		sbPanel3.ContentMarginLeft = contentMarginLeft;
-		StyleBoxFlat sbPanel4 = _sbPanel;
-		contentMarginLeft = (_sbPanel.ContentMarginBottom = 20f);
-		sbPanel4.ContentMarginTop = contentMarginLeft;
-		_sbPanel.ShadowSize = 16;
-		_sbPanel.ShadowColor = new Color(0f, 0f, 0f, 0.6f);
-		_sbEntry = new StyleBoxFlat();
-		_sbEntry.BgColor = new Color(0.05f, 0.07f, 0.13f, 0.55f);
-		_sbEntry.CornerRadiusTopLeft = 10;
-		_sbEntry.CornerRadiusTopRight = 10;
-		_sbEntry.CornerRadiusBottomLeft = 10;
-		_sbEntry.CornerRadiusBottomRight = 10;
-		StyleBoxFlat sbEntry3 = _sbEntry;
-		contentMarginLeft = (_sbEntry.ContentMarginRight = 14f);
-		sbEntry3.ContentMarginLeft = contentMarginLeft;
-		StyleBoxFlat sbEntry4 = _sbEntry;
-		contentMarginLeft = (_sbEntry.ContentMarginBottom = 8f);
-		sbEntry4.ContentMarginTop = contentMarginLeft;
-		_sbHover = _sbEntry.Duplicate() as StyleBoxFlat;
-		if (_sbHover != null)
-		{
-			_sbHover.BgColor = new Color(0.08f, 0.10f, 0.18f, 0.75f);
-			_sbHover.BorderWidthLeft = 3;
-			_sbHover.BorderColor = ClrAccent;
-		}
-		_sbBest = _sbEntry.Duplicate() as StyleBoxFlat;
-		if (_sbBest != null)
-		{
-			_sbBest.BgColor = new Color(0.831f, 0.714f, 0.357f, 0.1f);
-			_sbBest.BorderWidthLeft = 4;
-			_sbBest.BorderColor = ClrAccent;
-		}
-		_sbHoverBest = _sbBest?.Duplicate() as StyleBoxFlat;
-		if (_sbHoverBest != null)
-		{
-			_sbHoverBest.BgColor = new Color(0.831f, 0.714f, 0.357f, 0.15f);
-		}
-		_sbSTier = _sbBest?.Duplicate() as StyleBoxFlat;
-		if (_sbSTier != null)
-		{
-			_sbSTier.BorderWidthLeft = 5;
-			_sbSTier.ShadowSize = 10;
-			_sbSTier.ShadowColor = new Color(ClrAccent, 0.6f);
-		}
-		_sbSTierHover = _sbSTier?.Duplicate() as StyleBoxFlat;
-		if (_sbSTierHover != null)
-		{
-			_sbSTierHover.BgColor = new Color(0.831f, 0.714f, 0.357f, 0.18f);
-		}
-		_sbChip = new StyleBoxFlat();
-		_sbChip.BgColor = new Color(0.02f, 0.03f, 0.07f, 0.7f);
-		StyleBoxFlat sbChip = _sbChip;
-		int chipRadius = (_sbChip.CornerRadiusTopRight = 16);
-		sbChip.CornerRadiusTopLeft = chipRadius;
-		StyleBoxFlat sbChip2 = _sbChip;
-		chipRadius = (_sbChip.CornerRadiusBottomRight = 16);
-		sbChip2.CornerRadiusBottomLeft = chipRadius;
-		StyleBoxFlat sbChip3 = _sbChip;
-		contentMarginLeft = (_sbChip.ContentMarginRight = 12f);
-		sbChip3.ContentMarginLeft = contentMarginLeft;
-		StyleBoxFlat sbChip4 = _sbChip;
-		contentMarginLeft = (_sbChip.ContentMarginBottom = 4f);
-		sbChip4.ContentMarginTop = contentMarginLeft;
-		_sbChip.BorderWidthBottom = 1;
-		_sbChip.BorderWidthTop = 1;
-		_sbChip.BorderColor = new Color(ClrAccent, 0.3f);
+		_sbPanel = OverlayStyles.CreatePanelStyle();
+		_sbEntry = OverlayStyles.CreateEntryStyle();
+		_sbHover = OverlayStyles.CreateEntryHoverStyle();
+		_sbBest = OverlayStyles.CreateBestEntryStyle();
+		_sbHoverBest = OverlayStyles.CreateBestEntryHoverStyle();
+		_sbSTier = OverlayStyles.CreateSTierStyle();
+		_sbSTierHover = OverlayStyles.CreateSTierHoverStyle();
+		_sbChip = OverlayStyles.CreateChipStyle();
 	}
 
 	private void BuildOverlay()
@@ -560,7 +478,7 @@ public partial class OverlayManager
 		Label vLabel = new Label();
 		vLabel.Text = $"v{Plugin.ModVersion}";
 		ApplyFont(vLabel, _fontBody);
-		vLabel.AddThemeFontSizeOverride("font_size", 11);
+		vLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 		vLabel.AddThemeColorOverride("font_color", ClrSub);
 		vLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
 		vBadge.AddChild(vLabel, forceReadableName: false, Node.InternalMode.Disabled);
@@ -600,7 +518,7 @@ public partial class OverlayManager
 		_winRateLabel.Text = "";
 		_winRateLabel.Visible = false;
 		ApplyFont(_winRateLabel, _fontBody);
-		_winRateLabel.AddThemeFontSizeOverride("font_size", 17);
+		_winRateLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		_winRateLabel.AddThemeColorOverride("font_color", ClrSub);
 		_winRateLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
 		titleBar.AddChild(_winRateLabel, forceReadableName: false, Node.InternalMode.Disabled);
@@ -1142,7 +1060,7 @@ public partial class OverlayManager
 				advLbl.Text = $"{icon}  {text}";
 				ApplyFont(advLbl, _fontBody);
 				advLbl.AddThemeColorOverride("font_color", color);
-				advLbl.AddThemeFontSizeOverride("font_size", 17);
+				advLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				advLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 				advPanel.AddChild(advLbl, forceReadableName: false, Node.InternalMode.Disabled);
 				_content.AddChild(advPanel, forceReadableName: false, Node.InternalMode.Disabled);

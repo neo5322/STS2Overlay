@@ -22,16 +22,16 @@ public partial class OverlayManager
 		_settingsMenu.MouseFilter = Control.MouseFilterEnum.Stop;
 
 		StyleBoxFlat menuStyle = new StyleBoxFlat();
-		menuStyle.BgColor = new Color(0.03f, 0.05f, 0.1f, 0.97f);
-		menuStyle.BorderWidthTop = menuStyle.BorderWidthBottom = menuStyle.BorderWidthLeft = menuStyle.BorderWidthRight = 2;
+		menuStyle.BgColor = OverlayTheme.BgPanel;
+		OverlayStyles.SetAllBorderWidth(menuStyle, 2);
 		menuStyle.BorderColor = ClrBorder;
-		menuStyle.CornerRadiusTopLeft = menuStyle.CornerRadiusTopRight = menuStyle.CornerRadiusBottomLeft = menuStyle.CornerRadiusBottomRight = 6;
-		menuStyle.ContentMarginLeft = menuStyle.ContentMarginRight = 12;
-		menuStyle.ContentMarginTop = menuStyle.ContentMarginBottom = 8;
+		OverlayStyles.SetAllCornerRadius(menuStyle, OverlayTheme.RadiusSM);
+		menuStyle.ContentMarginLeft = menuStyle.ContentMarginRight = OverlayTheme.SpaceLG;
+		menuStyle.ContentMarginTop = menuStyle.ContentMarginBottom = OverlayTheme.SpaceMD;
 		_settingsMenu.AddThemeStyleboxOverride("panel", menuStyle);
 
 		VBoxContainer menuVBox = new VBoxContainer();
-		menuVBox.AddThemeConstantOverride("separation", 4);
+		menuVBox.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 		_settingsMenu.AddChild(menuVBox, forceReadableName: false, Node.InternalMode.Disabled);
 
 		// Header row with close button
@@ -40,7 +40,7 @@ public partial class OverlayManager
 		Label header = new Label();
 		header.Text = "설정";
 		ApplyFont(header, _fontBold);
-		header.AddThemeFontSizeOverride("font_size", 14);
+		header.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 		header.AddThemeColorOverride("font_color", ClrHeader);
 		header.MouseFilter = Control.MouseFilterEnum.Ignore;
 		header.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -49,7 +49,7 @@ public partial class OverlayManager
 		Label closeBtn = new Label();
 		closeBtn.Text = "[X]";
 		ApplyFont(closeBtn, _fontBold);
-		closeBtn.AddThemeFontSizeOverride("font_size", 14);
+		closeBtn.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 		closeBtn.AddThemeColorOverride("font_color", ClrSub);
 		closeBtn.MouseFilter = Control.MouseFilterEnum.Stop;
 		closeBtn.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
@@ -62,7 +62,7 @@ public partial class OverlayManager
 		menuVBox.AddChild(headerRow, forceReadableName: false, Node.InternalMode.Disabled);
 
 		HSeparator sep = new HSeparator();
-		sep.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.4f), Thickness = 1 });
+		sep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 		menuVBox.AddChild(sep, forceReadableName: false, Node.InternalMode.Disabled);
 
 		// Menu items
@@ -80,12 +80,12 @@ public partial class OverlayManager
 
 		// v0.14.1: Pipeline & feature toggles
 		HSeparator pipeSep = new HSeparator();
-		pipeSep.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.3f), Thickness = 1 });
+		pipeSep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 		menuVBox.AddChild(pipeSep, forceReadableName: false, Node.InternalMode.Disabled);
 		Label pipeHeader = new Label();
 		pipeHeader.Text = "기능 토글";
 		ApplyFont(pipeHeader, _fontBold);
-		pipeHeader.AddThemeFontSizeOverride("font_size", 13);
+		pipeHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		pipeHeader.AddThemeColorOverride("font_color", ClrAccent);
 		menuVBox.AddChild(pipeHeader, forceReadableName: false, Node.InternalMode.Disabled);
 
@@ -101,7 +101,7 @@ public partial class OverlayManager
 
 		// Opacity section
 		HSeparator sep2 = new HSeparator();
-		sep2.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.3f), Thickness = 1 });
+		sep2.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 		menuVBox.AddChild(sep2, forceReadableName: false, Node.InternalMode.Disabled);
 
 		HBoxContainer opacityRow = new HBoxContainer();
@@ -109,7 +109,7 @@ public partial class OverlayManager
 		Label opLabel = new Label();
 		opLabel.Text = "투명도:";
 		ApplyFont(opLabel, _fontBody);
-		opLabel.AddThemeFontSizeOverride("font_size", 13);
+		opLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		opLabel.AddThemeColorOverride("font_color", ClrCream);
 		opLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
 		opLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -122,7 +122,7 @@ public partial class OverlayManager
 			bool isActive = Math.Abs(_panelOpacity - step) < 0.01f;
 			stepBtn.Text = $" {pct}% ";
 			ApplyFont(stepBtn, _fontBold);
-			stepBtn.AddThemeFontSizeOverride("font_size", 13);
+			stepBtn.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 			stepBtn.AddThemeColorOverride("font_color", isActive ? ClrHeader : ClrSub);
 			stepBtn.MouseFilter = Control.MouseFilterEnum.Stop;
 			stepBtn.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
@@ -145,13 +145,13 @@ public partial class OverlayManager
 
 		// Community stats export/import
 		HSeparator sepStats = new HSeparator();
-		sepStats.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.3f), Thickness = 1 });
+		sepStats.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 		menuVBox.AddChild(sepStats, forceReadableName: false, Node.InternalMode.Disabled);
 
 		Label exportBtn = new Label();
 		exportBtn.Text = "통계 내보내기";
 		ApplyFont(exportBtn, _fontBody);
-		exportBtn.AddThemeFontSizeOverride("font_size", 13);
+		exportBtn.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		exportBtn.AddThemeColorOverride("font_color", ClrAqua);
 		exportBtn.MouseFilter = Control.MouseFilterEnum.Stop;
 		exportBtn.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
@@ -179,7 +179,7 @@ public partial class OverlayManager
 		Label importBtn = new Label();
 		importBtn.Text = "통계 가져오기";
 		ApplyFont(importBtn, _fontBody);
-		importBtn.AddThemeFontSizeOverride("font_size", 13);
+		importBtn.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		importBtn.AddThemeColorOverride("font_color", ClrAqua);
 		importBtn.MouseFilter = Control.MouseFilterEnum.Stop;
 		importBtn.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
@@ -222,13 +222,13 @@ public partial class OverlayManager
 
 		// Hide overlay option
 		HSeparator sep3 = new HSeparator();
-		sep3.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.3f), Thickness = 1 });
+		sep3.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 		menuVBox.AddChild(sep3, forceReadableName: false, Node.InternalMode.Disabled);
 
 		Label hideBtn = new Label();
 		hideBtn.Text = "오버레이 접기";
 		ApplyFont(hideBtn, _fontBody);
-		hideBtn.AddThemeFontSizeOverride("font_size", 13);
+		hideBtn.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		hideBtn.AddThemeColorOverride("font_color", ClrSub);
 		hideBtn.MouseFilter = Control.MouseFilterEnum.Stop;
 		hideBtn.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
@@ -254,7 +254,7 @@ public partial class OverlayManager
 		Label checkmark = new Label();
 		checkmark.Text = currentValue ? "\u2611" : "\u2610";
 		ApplyFont(checkmark, _fontBody);
-		checkmark.AddThemeFontSizeOverride("font_size", 15);
+		checkmark.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		checkmark.AddThemeColorOverride("font_color", currentValue ? ClrPositive : ClrSub);
 		checkmark.MouseFilter = Control.MouseFilterEnum.Ignore;
 		row.AddChild(checkmark, forceReadableName: false, Node.InternalMode.Disabled);
@@ -262,7 +262,7 @@ public partial class OverlayManager
 		Label text = new Label();
 		text.Text = $" {label}";
 		ApplyFont(text, _fontBody);
-		text.AddThemeFontSizeOverride("font_size", 13);
+		text.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		text.AddThemeColorOverride("font_color", ClrCream);
 		text.MouseFilter = Control.MouseFilterEnum.Ignore;
 		text.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
