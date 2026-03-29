@@ -10,6 +10,113 @@ namespace QuestceSpire.UI;
 
 public partial class OverlayManager
 {
+	// Run summary section toggles
+	private bool _showCombatStats = false;
+	private bool _showCardUsage = false;
+	private bool _showDecisionReview = true;
+	private bool _showControversialPicks = false;
+	private bool _showDecisionReplay = false;
+	private bool _showGlobalComparison = false;
+
+	/// <summary>
+	/// Collapsible section for run summary panels. Similar to AddCollapsibleSection in Builder
+	/// but self-contained with its own toggle handling for run summary section keys.
+	/// Returns a VBoxContainer to add children to when expanded, or null when collapsed.
+	/// </summary>
+	private VBoxContainer AddRunSummarySection(string text, string sectionKey, ref bool isExpanded)
+	{
+		// Separator
+		if (_content.GetChildCount() > 0)
+		{
+			HSeparator sep = new HSeparator();
+			sep.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.4f), Thickness = 1 });
+			_content.AddChild(sep, forceReadableName: false, Node.InternalMode.Disabled);
+		}
+		// Header row: clickable toggle
+		HBoxContainer headerRow = new HBoxContainer();
+		headerRow.MouseFilter = Control.MouseFilterEnum.Stop;
+		headerRow.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
+		Label arrow = new Label();
+		arrow.Text = isExpanded ? "\u25BC " : "\u25B6 ";
+		ApplyFont(arrow, _fontBold);
+		arrow.AddThemeColorOverride("font_color", ClrSub);
+		arrow.AddThemeFontSizeOverride("font_size", 14);
+		arrow.MouseFilter = Control.MouseFilterEnum.Ignore;
+		headerRow.AddChild(arrow, forceReadableName: false, Node.InternalMode.Disabled);
+		Label headerLabel = new Label();
+		headerLabel.Text = text;
+		ApplyFont(headerLabel, _fontBold);
+		headerLabel.AddThemeColorOverride("font_color", ClrAccent);
+		headerLabel.AddThemeFontSizeOverride("font_size", 16);
+		headerLabel.AddThemeConstantOverride("outline_size", 3);
+		headerLabel.AddThemeColorOverride("font_outline_color", ClrOutline);
+		headerLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+		headerRow.AddChild(headerLabel, forceReadableName: false, Node.InternalMode.Disabled);
+		_content.AddChild(headerRow, forceReadableName: false, Node.InternalMode.Disabled);
+		if (!isExpanded)
+		{
+			string localKey = sectionKey;
+			headerRow.GuiInput += (InputEvent ev) =>
+			{
+				if (ev is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
+				{
+					SetRunSummarySectionState(localKey, true);
+					Rebuild();
+				}
+			};
+			return null;
+		}
+		// Section is expanded — add content container
+		VBoxContainer sectionContent = new VBoxContainer();
+		sectionContent.AddThemeConstantOverride("separation", 4);
+		_content.AddChild(sectionContent, forceReadableName: false, Node.InternalMode.Disabled);
+		// Click to collapse
+		string collapseKey = sectionKey;
+		headerRow.GuiInput += (InputEvent ev) =>
+		{
+			if (ev is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
+			{
+				SetRunSummarySectionState(collapseKey, false);
+				Rebuild();
+			}
+		};
+		return sectionContent;
+	}
+
+	private void SetRunSummarySectionState(string key, bool value)
+	{
+		switch (key)
+		{
+			case "runCombatStats": _showCombatStats = value; break;
+			case "runCardUsage": _showCardUsage = value; break;
+			case "runDecisionReview": _showDecisionReview = value; break;
+			case "runControversialPicks": _showControversialPicks = value; break;
+			case "runDecisionReplay": _showDecisionReplay = value; break;
+			case "runGlobalComparison": _showGlobalComparison = value; break;
+		}
+	}
+
+	/// <summary>Adds a stat row to a specific container instead of _content.</summary>
+	private void AddStatRowTo(VBoxContainer target, string label, string value, Color valueColor)
+	{
+		HBoxContainer row = new HBoxContainer();
+		row.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
+		Label lbl = new Label();
+		lbl.Text = label;
+		ApplyFont(lbl, _fontBody);
+		lbl.AddThemeColorOverride("font_color", ClrSub);
+		lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
+		lbl.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		row.AddChild(lbl, forceReadableName: false, Node.InternalMode.Disabled);
+		Label val = new Label();
+		val.Text = value;
+		ApplyFont(val, _fontBold);
+		val.AddThemeColorOverride("font_color", valueColor);
+		val.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
+		row.AddChild(val, forceReadableName: false, Node.InternalMode.Disabled);
+		target.AddChild(row, forceReadableName: false, Node.InternalMode.Disabled);
+	}
+
 	// === Feature 1: Decision history ===
 
 	public void ToggleHistory()
@@ -72,7 +179,7 @@ public partial class OverlayManager
 		scroll.MouseFilter = Control.MouseFilterEnum.Stop;
 
 		VBoxContainer scrollContent = new VBoxContainer();
-		scrollContent.AddThemeConstantOverride("separation", 6);
+		scrollContent.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		scrollContent.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		scroll.AddChild(scrollContent, forceReadableName: false, Node.InternalMode.Disabled);
 
@@ -131,20 +238,10 @@ public partial class OverlayManager
 		};
 
 		PanelContainer entryPanel = new PanelContainer();
-		StyleBoxFlat entryStyle = new StyleBoxFlat();
-		entryStyle.BgColor = new Color(0.04f, 0.06f, 0.1f, 0.5f);
-		entryStyle.CornerRadiusTopRight = 6;
-		entryStyle.CornerRadiusBottomRight = 6;
-		entryStyle.BorderWidthLeft = 3;
-		entryStyle.BorderColor = borderColor;
-		entryStyle.ContentMarginLeft = 10f;
-		entryStyle.ContentMarginRight = 8f;
-		entryStyle.ContentMarginTop = 4f;
-		entryStyle.ContentMarginBottom = 4f;
-		entryPanel.AddThemeStyleboxOverride("panel", entryStyle);
+		entryPanel.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(borderColor));
 
 		VBoxContainer vbox = new VBoxContainer();
-		vbox.AddThemeConstantOverride("separation", 1);
+		vbox.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 		entryPanel.AddChild(vbox, forceReadableName: false, Node.InternalMode.Disabled);
 
 		// Main line: chosen card/relic with grade
@@ -172,7 +269,7 @@ public partial class OverlayManager
 			altLine.Text = $"  over {string.Join(", ", altParts)}";
 			ApplyFont(altLine, _fontBody);
 			altLine.AddThemeColorOverride("font_color", ClrSub);
-			altLine.AddThemeFontSizeOverride("font_size", 17);
+			altLine.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 			altLine.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
 			vbox.AddChild(altLine, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -214,7 +311,7 @@ public partial class OverlayManager
 		Label deckHeader = new Label();
 		deckHeader.Text = $"내 덱 ({analysis.TotalCards}장)";
 		ApplyFont(deckHeader, _fontBold);
-		deckHeader.AddThemeFontSizeOverride("font_size", 15);
+		deckHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		deckHeader.AddThemeColorOverride("font_color", ClrCream);
 		target.AddChild(deckHeader, forceReadableName: false, Node.InternalMode.Disabled);
 		if (analysis.DetectedArchetypes != null && analysis.DetectedArchetypes.Count > 0)
@@ -227,7 +324,7 @@ public partial class OverlayManager
 				int pct = (int)(arch.Strength / totalStr * 100f);
 				Color ac = ArchColors[cIdx % ArchColors.Length];
 				HBoxContainer aRow = new HBoxContainer();
-				aRow.AddThemeConstantOverride("separation", 6);
+				aRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 				ColorRect aBar = new ColorRect();
 				aBar.Color = new Color(ac, 0.7f);
 				aBar.CustomMinimumSize = new Vector2(Math.Max(pct * 0.6f, 3f), 10f);
@@ -236,7 +333,7 @@ public partial class OverlayManager
 				aLbl.Text = $"{arch.Archetype.DisplayName}  {pct}%";
 				ApplyFont(aLbl, _fontBold);
 				aLbl.AddThemeColorOverride("font_color", ac);
-				aLbl.AddThemeFontSizeOverride("font_size", 13);
+				aLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 				aRow.AddChild(aLbl, forceReadableName: false, Node.InternalMode.Disabled);
 				target.AddChild(aRow, forceReadableName: false, Node.InternalMode.Disabled);
 				cIdx++;
@@ -248,7 +345,7 @@ public partial class OverlayManager
 			noArch.Text = "아키타입 방향 불명확";
 			ApplyFont(noArch, _fontBody);
 			noArch.AddThemeColorOverride("font_color", ClrSub);
-			noArch.AddThemeFontSizeOverride("font_size", 13);
+			noArch.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 			target.AddChild(noArch, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		AddInlineEnergyCurve(target, analysis);
@@ -266,7 +363,7 @@ public partial class OverlayManager
 		target.AddChild(curveHeader, forceReadableName: false, Node.InternalMode.Disabled);
 
 		HBoxContainer costRow = new HBoxContainer();
-		costRow.AddThemeConstantOverride("separation", 2);
+		costRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 		for (int cost = 0; cost <= 5; cost++)
 		{
 			Label costLbl = new Label();
@@ -281,7 +378,7 @@ public partial class OverlayManager
 		target.AddChild(costRow, forceReadableName: false, Node.InternalMode.Disabled);
 
 		HBoxContainer curveRow = new HBoxContainer();
-		curveRow.AddThemeConstantOverride("separation", 2);
+		curveRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 		curveRow.CustomMinimumSize = new Vector2(0, 18f);
 		int maxCount = analysis.EnergyCurve.Count > 0 ? analysis.EnergyCurve.Values.Max() : 1;
 		Color[] costColors = {
@@ -296,7 +393,7 @@ public partial class OverlayManager
 		{
 			int count = analysis.EnergyCurve.TryGetValue(cost, out int c) ? c : 0;
 			VBoxContainer col = new VBoxContainer();
-			col.AddThemeConstantOverride("separation", 1);
+			col.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 			col.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			float barHeight = maxCount > 0 ? (float)count / maxCount * 12f : 0f;
 			ColorRect bar = new ColorRect();
@@ -320,46 +417,46 @@ public partial class OverlayManager
 		int totalTyped = analysis.AttackCount + analysis.SkillCount + analysis.PowerCount;
 		if (totalTyped == 0) return;
 		HBoxContainer typeRow = new HBoxContainer();
-		typeRow.AddThemeConstantOverride("separation", 0);
-		typeRow.CustomMinimumSize = new Vector2(0, 8f);
+		typeRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
+		typeRow.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 		if (analysis.AttackCount > 0)
 		{
 			ColorRect atkBar = new ColorRect();
-			atkBar.Color = new Color(0.9f, 0.35f, 0.3f);
+			atkBar.Color = OverlayTheme.CardAttack;
 			atkBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			atkBar.SizeFlagsStretchRatio = analysis.AttackCount;
-			atkBar.CustomMinimumSize = new Vector2(0, 8f);
+			atkBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			typeRow.AddChild(atkBar, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.SkillCount > 0)
 		{
 			ColorRect sklBar = new ColorRect();
-			sklBar.Color = new Color(0.3f, 0.5f, 1f);
+			sklBar.Color = OverlayTheme.CardSkill;
 			sklBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			sklBar.SizeFlagsStretchRatio = analysis.SkillCount;
-			sklBar.CustomMinimumSize = new Vector2(0, 8f);
+			sklBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			typeRow.AddChild(sklBar, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.PowerCount > 0)
 		{
 			ColorRect pwrBar = new ColorRect();
-			pwrBar.Color = new Color(0.3f, 0.8f, 0.4f);
+			pwrBar.Color = OverlayTheme.CardPower;
 			pwrBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			pwrBar.SizeFlagsStretchRatio = analysis.PowerCount;
-			pwrBar.CustomMinimumSize = new Vector2(0, 8f);
+			pwrBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			typeRow.AddChild(pwrBar, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		target.AddChild(typeRow, forceReadableName: false, Node.InternalMode.Disabled);
 		HBoxContainer typeLblRow = new HBoxContainer();
-		typeLblRow.AddThemeConstantOverride("separation", 8);
+		typeLblRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		typeLblRow.Alignment = BoxContainer.AlignmentMode.Center;
 		if (analysis.AttackCount > 0)
 		{
 			Label atkLbl = new Label();
 			atkLbl.Text = $"{analysis.AttackCount} 공격";
 			ApplyFont(atkLbl, _fontBody);
-			atkLbl.AddThemeColorOverride("font_color", new Color(0.9f, 0.35f, 0.3f));
-			atkLbl.AddThemeFontSizeOverride("font_size", 15);
+			atkLbl.AddThemeColorOverride("font_color", OverlayTheme.CardAttack);
+			atkLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 			typeLblRow.AddChild(atkLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.SkillCount > 0)
@@ -367,8 +464,8 @@ public partial class OverlayManager
 			Label sklLbl = new Label();
 			sklLbl.Text = $"{analysis.SkillCount} 스킬";
 			ApplyFont(sklLbl, _fontBody);
-			sklLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.5f, 1f));
-			sklLbl.AddThemeFontSizeOverride("font_size", 15);
+			sklLbl.AddThemeColorOverride("font_color", OverlayTheme.CardSkill);
+			sklLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 			typeLblRow.AddChild(sklLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		if (analysis.PowerCount > 0)
@@ -376,8 +473,8 @@ public partial class OverlayManager
 			Label pwrLbl = new Label();
 			pwrLbl.Text = $"{analysis.PowerCount} 파워";
 			ApplyFont(pwrLbl, _fontBody);
-			pwrLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.8f, 0.4f));
-			pwrLbl.AddThemeFontSizeOverride("font_size", 15);
+			pwrLbl.AddThemeColorOverride("font_color", OverlayTheme.CardPower);
+			pwrLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 			typeLblRow.AddChild(pwrLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		target.AddChild(typeLblRow, forceReadableName: false, Node.InternalMode.Disabled);
@@ -412,7 +509,7 @@ public partial class OverlayManager
 
 			// Cost number row above bars
 			HBoxContainer costRow = new HBoxContainer();
-			costRow.AddThemeConstantOverride("separation", 2);
+			costRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 			for (int cost = 0; cost <= 5; cost++)
 			{
 				Label costLbl = new Label();
@@ -427,7 +524,7 @@ public partial class OverlayManager
 			_deckVizContainer.AddChild(costRow, forceReadableName: false, Node.InternalMode.Disabled);
 
 			HBoxContainer curveRow = new HBoxContainer();
-			curveRow.AddThemeConstantOverride("separation", 2);
+			curveRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 			curveRow.CustomMinimumSize = new Vector2(0, 18f);
 			int maxCount = analysis.EnergyCurve.Count > 0 ? analysis.EnergyCurve.Values.Max() : 1;
 			Color[] costColors = {
@@ -442,7 +539,7 @@ public partial class OverlayManager
 			{
 				int count = analysis.EnergyCurve.TryGetValue(cost, out int c) ? c : 0;
 				VBoxContainer col = new VBoxContainer();
-				col.AddThemeConstantOverride("separation", 1);
+				col.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 				col.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 
 				// Bar
@@ -471,51 +568,51 @@ public partial class OverlayManager
 		if (totalTyped > 0)
 		{
 			HBoxContainer typeRow = new HBoxContainer();
-			typeRow.AddThemeConstantOverride("separation", 0);
-			typeRow.CustomMinimumSize = new Vector2(0, 8f);
+			typeRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
+			typeRow.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 			// Attack segment (red)
 			if (analysis.AttackCount > 0)
 			{
 				ColorRect atkBar = new ColorRect();
-				atkBar.Color = new Color(0.9f, 0.35f, 0.3f);
+				atkBar.Color = OverlayTheme.CardAttack;
 				atkBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 				atkBar.SizeFlagsStretchRatio = analysis.AttackCount;
-				atkBar.CustomMinimumSize = new Vector2(0, 8f);
+				atkBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 				typeRow.AddChild(atkBar, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			// Skill segment (blue)
 			if (analysis.SkillCount > 0)
 			{
 				ColorRect sklBar = new ColorRect();
-				sklBar.Color = new Color(0.3f, 0.5f, 1f);
+				sklBar.Color = OverlayTheme.CardSkill;
 				sklBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 				sklBar.SizeFlagsStretchRatio = analysis.SkillCount;
-				sklBar.CustomMinimumSize = new Vector2(0, 8f);
+				sklBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 				typeRow.AddChild(sklBar, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			// Power segment (green)
 			if (analysis.PowerCount > 0)
 			{
 				ColorRect pwrBar = new ColorRect();
-				pwrBar.Color = new Color(0.3f, 0.8f, 0.4f);
+				pwrBar.Color = OverlayTheme.CardPower;
 				pwrBar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 				pwrBar.SizeFlagsStretchRatio = analysis.PowerCount;
-				pwrBar.CustomMinimumSize = new Vector2(0, 8f);
+				pwrBar.CustomMinimumSize = new Vector2(0, OverlayTheme.TypeBarHeight);
 				typeRow.AddChild(pwrBar, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			_deckVizContainer.AddChild(typeRow, forceReadableName: false, Node.InternalMode.Disabled);
 
 			// Type labels — color-matched
 			HBoxContainer typeLblRow = new HBoxContainer();
-			typeLblRow.AddThemeConstantOverride("separation", 8);
+			typeLblRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 			typeLblRow.Alignment = BoxContainer.AlignmentMode.Center;
 			if (analysis.AttackCount > 0)
 			{
 				Label atkLbl = new Label();
 				atkLbl.Text = $"{analysis.AttackCount} 공격";
 				ApplyFont(atkLbl, _fontBody);
-				atkLbl.AddThemeColorOverride("font_color", new Color(0.9f, 0.35f, 0.3f));
-				atkLbl.AddThemeFontSizeOverride("font_size", 17);
+				atkLbl.AddThemeColorOverride("font_color", OverlayTheme.CardAttack);
+				atkLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				typeLblRow.AddChild(atkLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			if (analysis.SkillCount > 0)
@@ -523,8 +620,8 @@ public partial class OverlayManager
 				Label sklLbl = new Label();
 				sklLbl.Text = $"{analysis.SkillCount} 스킬";
 				ApplyFont(sklLbl, _fontBody);
-				sklLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.5f, 1f));
-				sklLbl.AddThemeFontSizeOverride("font_size", 17);
+				sklLbl.AddThemeColorOverride("font_color", OverlayTheme.CardSkill);
+				sklLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				typeLblRow.AddChild(sklLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			if (analysis.PowerCount > 0)
@@ -532,8 +629,8 @@ public partial class OverlayManager
 				Label pwrLbl = new Label();
 				pwrLbl.Text = $"{analysis.PowerCount} 파워";
 				ApplyFont(pwrLbl, _fontBody);
-				pwrLbl.AddThemeColorOverride("font_color", new Color(0.3f, 0.8f, 0.4f));
-				pwrLbl.AddThemeFontSizeOverride("font_size", 17);
+				pwrLbl.AddThemeColorOverride("font_color", OverlayTheme.CardPower);
+				pwrLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				typeLblRow.AddChild(pwrLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 			_deckVizContainer.AddChild(typeLblRow, forceReadableName: false, Node.InternalMode.Disabled);
@@ -641,35 +738,55 @@ public partial class OverlayManager
 			// ─── Combat Efficiency ───
 			if (summaryData != null && summaryData.TotalTurns > 0)
 			{
-				AddSectionHeader("전투 효율");
-				float dpt = (float)summaryData.TotalDamageDealt / summaryData.TotalTurns;
-				float dtpt = (float)summaryData.TotalDamageTaken / summaryData.TotalTurns;
-				float bpt = (float)summaryData.TotalBlockGenerated / summaryData.TotalTurns;
+				var combatSection = AddRunSummarySection("전투 효율", "runCombatStats", ref _showCombatStats);
+				if (combatSection != null)
+				{
+					float dpt = (float)summaryData.TotalDamageDealt / summaryData.TotalTurns;
+					float dtpt = (float)summaryData.TotalDamageTaken / summaryData.TotalTurns;
+					float bpt = (float)summaryData.TotalBlockGenerated / summaryData.TotalTurns;
 
-				AddStatRow("총 딜량", $"{summaryData.TotalDamageDealt}", ClrPositive);
-				AddStatRow("턴당 딜", $"{dpt:F1}", dpt >= 15 ? ClrPositive : ClrSub);
-				AddStatRow("받은 피해", $"{summaryData.TotalDamageTaken}", dtpt > 10 ? ClrNegative : ClrSub);
-				AddStatRow("생성 블록", $"{summaryData.TotalBlockGenerated}", bpt >= 8 ? ClrPositive : ClrSub);
-				AddStatRow("총 턴 수", $"{summaryData.TotalTurns}", ClrSub);
+					AddStatRowTo(combatSection, "총 딜량", $"{summaryData.TotalDamageDealt}", ClrPositive);
+					AddStatRowTo(combatSection, "턴당 딜", $"{dpt:F1}", dpt >= 15 ? ClrPositive : ClrSub);
+					AddStatRowTo(combatSection, "받은 피해", $"{summaryData.TotalDamageTaken}", dtpt > 10 ? ClrNegative : ClrSub);
+					AddStatRowTo(combatSection, "생성 블록", $"{summaryData.TotalBlockGenerated}", bpt >= 8 ? ClrPositive : ClrSub);
+					AddStatRowTo(combatSection, "총 턴 수", $"{summaryData.TotalTurns}", ClrSub);
+				}
 			}
 
 			// ─── Most/Least Played Cards ───
-			if (summaryData?.MostPlayedCards?.Count > 0)
+			if (summaryData?.MostPlayedCards?.Count > 0 || summaryData?.LeastPlayedCards?.Count > 0)
 			{
-				AddSectionHeader("가장 많이 사용한 카드");
-				foreach (var card in summaryData.MostPlayedCards)
+				var cardUsageSection = AddRunSummarySection("카드 사용 통계", "runCardUsage", ref _showCardUsage);
+				if (cardUsageSection != null)
 				{
-					string name = PrettifyId(card.CardId);
-					AddStatRow(name, $"{card.PlayCount}회", ClrAccent);
-				}
-			}
-			if (summaryData?.LeastPlayedCards?.Count > 0)
-			{
-				AddSectionHeader("거의 사용하지 않은 카드");
-				foreach (var card in summaryData.LeastPlayedCards)
-				{
-					string name = PrettifyId(card.CardId);
-					AddStatRow(name, $"{card.PlayCount}회", ClrNegative);
+					if (summaryData?.MostPlayedCards?.Count > 0)
+					{
+						Label mostHeader = new Label();
+						mostHeader.Text = "가장 많이 사용한 카드";
+						ApplyFont(mostHeader, _fontBold);
+						mostHeader.AddThemeColorOverride("font_color", ClrCream);
+						mostHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
+						cardUsageSection.AddChild(mostHeader, forceReadableName: false, Node.InternalMode.Disabled);
+						foreach (var card in summaryData.MostPlayedCards)
+						{
+							string name = PrettifyId(card.CardId);
+							AddStatRowTo(cardUsageSection, name, $"{card.PlayCount}회", ClrAccent);
+						}
+					}
+					if (summaryData?.LeastPlayedCards?.Count > 0)
+					{
+						Label leastHeader = new Label();
+						leastHeader.Text = "거의 사용하지 않은 카드";
+						ApplyFont(leastHeader, _fontBold);
+						leastHeader.AddThemeColorOverride("font_color", ClrCream);
+						leastHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
+						cardUsageSection.AddChild(leastHeader, forceReadableName: false, Node.InternalMode.Disabled);
+						foreach (var card in summaryData.LeastPlayedCards)
+						{
+							string name = PrettifyId(card.CardId);
+							AddStatRowTo(cardUsageSection, name, $"{card.PlayCount}회", ClrNegative);
+						}
+					}
 				}
 			}
 
@@ -679,35 +796,28 @@ public partial class OverlayManager
 				var reviewed = summaryData.Decisions.Where(d => d.Feedback != null).ToList();
 				if (reviewed.Count > 0)
 				{
-					AddSectionHeader("커뮤니티 데이터 대비 결정 분석");
-					int good = summaryData.GoodDecisions;
-					int bad = summaryData.BadDecisions;
-					AddStatRow("좋은 선택", $"{good}", ClrPositive);
-					AddStatRow("아쉬운 선택", $"{bad}", bad > 0 ? ClrNegative : ClrSub);
-
-					foreach (var d in reviewed.Where(d => !d.WasBetterChoice.GetValueOrDefault(true)).Take(5))
+					var decisionReviewSection = AddRunSummarySection("커뮤니티 데이터 대비 결정 분석", "runDecisionReview", ref _showDecisionReview);
+					if (decisionReviewSection != null)
 					{
-						PanelContainer dPanel = new PanelContainer();
-						StyleBoxFlat dStyle = new StyleBoxFlat();
-						dStyle.BgColor = new Color(ClrNegative, 0.08f);
-						dStyle.CornerRadiusTopRight = 6;
-						dStyle.CornerRadiusBottomRight = 6;
-						dStyle.BorderWidthLeft = 3;
-						dStyle.BorderColor = ClrNegative;
-						dStyle.ContentMarginLeft = 10f;
-						dStyle.ContentMarginRight = 8f;
-						dStyle.ContentMarginTop = 4f;
-						dStyle.ContentMarginBottom = 4f;
-						dPanel.AddThemeStyleboxOverride("panel", dStyle);
+						int good = summaryData.GoodDecisions;
+						int bad = summaryData.BadDecisions;
+						AddStatRowTo(decisionReviewSection, "좋은 선택", $"{good}", ClrPositive);
+						AddStatRowTo(decisionReviewSection, "아쉬운 선택", $"{bad}", bad > 0 ? ClrNegative : ClrSub);
 
-						Label dLbl = new Label();
-						dLbl.Text = $"F{d.Floor} [{d.EventType}]: {d.Feedback}";
-						ApplyFont(dLbl, _fontBody);
-						dLbl.AddThemeColorOverride("font_color", ClrCream);
-						dLbl.AddThemeFontSizeOverride("font_size", 13);
-						dLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-						dPanel.AddChild(dLbl, forceReadableName: false, Node.InternalMode.Disabled);
-						_content.AddChild(dPanel, forceReadableName: false, Node.InternalMode.Disabled);
+						foreach (var d in reviewed.Where(d => !d.WasBetterChoice.GetValueOrDefault(true)).Take(5))
+						{
+							PanelContainer dPanel = new PanelContainer();
+							dPanel.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(ClrNegative));
+
+							Label dLbl = new Label();
+							dLbl.Text = $"F{d.Floor} [{d.EventType}]: {d.Feedback}";
+							ApplyFont(dLbl, _fontBody);
+							dLbl.AddThemeColorOverride("font_color", ClrCream);
+							dLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
+							dLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+							dPanel.AddChild(dLbl, forceReadableName: false, Node.InternalMode.Disabled);
+							decisionReviewSection.AddChild(dPanel, forceReadableName: false, Node.InternalMode.Disabled);
+						}
 					}
 				}
 			}
@@ -738,45 +848,40 @@ public partial class OverlayManager
 						controversial.Add((evt, chosenGrade, bestGrade));
 				}
 			}
-			if (controversial.Count > 0)
 			{
-				AddSectionHeader("논란 선택");
-				foreach (var (evt, chosenGrade, bestGrade) in controversial.Take(8))
+				var controversialSection = AddRunSummarySection("논란 선택", "runControversialPicks", ref _showControversialPicks);
+				if (controversialSection != null)
 				{
-					string chosen = evt.ChosenId != null ? PrettifyId(evt.ChosenId) : "스킵";
-					string bestId = evt.OfferedIds?.OrderByDescending(id => (int)LookupGrade(id, character)).FirstOrDefault();
-					string bestName = bestId != null ? PrettifyId(bestId) : "?";
-					int gap = (int)bestGrade - (int)chosenGrade;
-					PanelContainer cPanel = new PanelContainer();
-					StyleBoxFlat cStyle = new StyleBoxFlat();
-					cStyle.BgColor = new Color(outcomeColor, 0.08f);
-					cStyle.CornerRadiusTopRight = 6;
-					cStyle.CornerRadiusBottomRight = 6;
-					cStyle.BorderWidthLeft = 3;
-					cStyle.BorderColor = outcomeColor;
-					cStyle.ContentMarginLeft = 10f;
-					cStyle.ContentMarginRight = 8f;
-					cStyle.ContentMarginTop = 4f;
-					cStyle.ContentMarginBottom = 4f;
-					cPanel.AddThemeStyleboxOverride("panel", cStyle);
-					Label cLbl = new Label();
-					cLbl.Text = $"F{evt.Floor}: {chosen} [{chosenGrade}] \u2014 Best: {bestName} [{bestGrade}] ({gap} grades)";
-					ApplyFont(cLbl, _fontBody);
-					cLbl.AddThemeColorOverride("font_color", outcomeColor);
-					cLbl.AddThemeFontSizeOverride("font_size", 13);
-					cLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-					cPanel.AddChild(cLbl, forceReadableName: false, Node.InternalMode.Disabled);
-					_content.AddChild(cPanel, forceReadableName: false, Node.InternalMode.Disabled);
+					if (controversial.Count > 0)
+					{
+						foreach (var (evt, chosenGrade, bestGrade) in controversial.Take(8))
+						{
+							string chosen = evt.ChosenId != null ? PrettifyId(evt.ChosenId) : "스킵";
+							string bestId = evt.OfferedIds?.OrderByDescending(id => (int)LookupGrade(id, character)).FirstOrDefault();
+							string bestName = bestId != null ? PrettifyId(bestId) : "?";
+							int gap = (int)bestGrade - (int)chosenGrade;
+							PanelContainer cPanel = new PanelContainer();
+							cPanel.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(outcomeColor));
+							Label cLbl = new Label();
+							cLbl.Text = $"F{evt.Floor}: {chosen} [{chosenGrade}] \u2014 Best: {bestName} [{bestGrade}] ({gap} grades)";
+							ApplyFont(cLbl, _fontBody);
+							cLbl.AddThemeColorOverride("font_color", outcomeColor);
+							cLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
+							cLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+							cPanel.AddChild(cLbl, forceReadableName: false, Node.InternalMode.Disabled);
+							controversialSection.AddChild(cPanel, forceReadableName: false, Node.InternalMode.Disabled);
+						}
+					}
+					else
+					{
+						Label noContr = new Label();
+						noContr.Text = "논란 선택 없음 \u2014 좋은 판단!";
+						ApplyFont(noContr, _fontBody);
+						noContr.AddThemeColorOverride("font_color", ClrPositive);
+						noContr.AddThemeFontSizeOverride("font_size", 14);
+						controversialSection.AddChild(noContr, forceReadableName: false, Node.InternalMode.Disabled);
+					}
 				}
-			}
-			else
-			{
-				Label noContr = new Label();
-				noContr.Text = "논란 선택 없음 \u2014 좋은 판단!";
-				ApplyFont(noContr, _fontBody);
-				noContr.AddThemeColorOverride("font_color", ClrPositive);
-				noContr.AddThemeFontSizeOverride("font_size", 14);
-				_content.AddChild(noContr, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 
 			// ─── Gold ───
@@ -786,10 +891,22 @@ public partial class OverlayManager
 			}
 
 			// ─── Decision Replay (v0.12.2) ───
-			AddDecisionReplay(events, character);
+			{
+				var replaySection = AddRunSummarySection("결정 리플레이", "runDecisionReplay", ref _showDecisionReplay);
+				if (replaySection != null)
+				{
+					AddDecisionReplayTo(replaySection, events, character);
+				}
+			}
 
 			// ─── Global Stats Comparison (v0.14.3) ───
-			AddGlobalStatsComparison(character);
+			{
+				var globalSection = AddRunSummarySection("글로벌 통계 비교", "runGlobalComparison", ref _showGlobalComparison);
+				if (globalSection != null)
+				{
+					AddGlobalStatsComparisonTo(globalSection, character);
+				}
+			}
 
 			// Stats line
 			Label statsLbl = new Label();
@@ -817,19 +934,19 @@ public partial class OverlayManager
 	private void AddStatRow(string label, string value, Color valueColor)
 	{
 		HBoxContainer row = new HBoxContainer();
-		row.AddThemeConstantOverride("separation", 8);
+		row.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		Label lbl = new Label();
 		lbl.Text = label;
 		ApplyFont(lbl, _fontBody);
 		lbl.AddThemeColorOverride("font_color", ClrSub);
-		lbl.AddThemeFontSizeOverride("font_size", 13);
+		lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		lbl.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		row.AddChild(lbl, forceReadableName: false, Node.InternalMode.Disabled);
 		Label val = new Label();
 		val.Text = value;
 		ApplyFont(val, _fontBold);
 		val.AddThemeColorOverride("font_color", valueColor);
-		val.AddThemeFontSizeOverride("font_size", 13);
+		val.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 		row.AddChild(val, forceReadableName: false, Node.InternalMode.Disabled);
 		_content.AddChild(row, forceReadableName: false, Node.InternalMode.Disabled);
 	}
@@ -844,6 +961,25 @@ public partial class OverlayManager
 		if (meaningful.Count == 0) return;
 
 		AddSectionHeader("결정 리플레이");
+		AddDecisionReplayContent(_content, events, character);
+	}
+
+	/// <summary>
+	/// Decision replay content targeting a specific container (used by collapsible run summary).
+	/// </summary>
+	private void AddDecisionReplayTo(VBoxContainer target, IReadOnlyList<DecisionEvent> events, string character)
+	{
+		if (events == null || events.Count == 0) return;
+		var meaningful = events.Where(e => e.OfferedIds?.Count > 0).ToList();
+		if (meaningful.Count == 0) return;
+
+		AddDecisionReplayContent(target, events, character);
+	}
+
+	private void AddDecisionReplayContent(VBoxContainer target, IReadOnlyList<DecisionEvent> events, string character)
+	{
+		var meaningful = events.Where(e => e.OfferedIds?.Count > 0).ToList();
+		if (meaningful.Count == 0) return;
 
 		ScrollContainer scroll = new ScrollContainer();
 		scroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
@@ -853,22 +989,13 @@ public partial class OverlayManager
 		scroll.SizeFlagsVertical = Control.SizeFlags.Fill;
 
 		VBoxContainer scrollContent = new VBoxContainer();
-		scrollContent.AddThemeConstantOverride("separation", 4);
+		scrollContent.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 		scrollContent.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		scroll.AddChild(scrollContent, forceReadableName: false, Node.InternalMode.Disabled);
 
 		foreach (var evt in meaningful)
 		{
 			PanelContainer entry = new PanelContainer();
-			StyleBoxFlat style = new StyleBoxFlat();
-			style.BgColor = new Color(0.04f, 0.06f, 0.1f, 0.5f);
-			style.CornerRadiusTopRight = 6;
-			style.CornerRadiusBottomRight = 6;
-			style.BorderWidthLeft = 3;
-			style.ContentMarginLeft = 10f;
-			style.ContentMarginRight = 8f;
-			style.ContentMarginTop = 3f;
-			style.ContentMarginBottom = 3f;
 
 			// Color border by decision quality
 			Color borderClr = ClrSub;
@@ -879,11 +1006,10 @@ public partial class OverlayManager
 				int gap = (int)best - (int)chosen;
 				borderClr = gap == 0 ? ClrPositive : gap == 1 ? ClrAccent : ClrNegative;
 			}
-			style.BorderColor = borderClr;
-			entry.AddThemeStyleboxOverride("panel", style);
+			entry.AddThemeStyleboxOverride("panel", OverlayStyles.CreateDecisionEntryStyle(borderClr));
 
 			VBoxContainer vbox = new VBoxContainer();
-			vbox.AddThemeConstantOverride("separation", 1);
+			vbox.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 			entry.AddChild(vbox, forceReadableName: false, Node.InternalMode.Disabled);
 
 			// Line 1: Floor + event type + chosen
@@ -902,7 +1028,7 @@ public partial class OverlayManager
 			mainLine.Text = $"{typeIcon} F{evt.Floor}: {chosenName} [{chosenGrade}]";
 			ApplyFont(mainLine, _fontBold);
 			mainLine.AddThemeColorOverride("font_color", borderClr);
-			mainLine.AddThemeFontSizeOverride("font_size", 13);
+			mainLine.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
 			mainLine.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
 			vbox.AddChild(mainLine, forceReadableName: false, Node.InternalMode.Disabled);
 
@@ -928,14 +1054,14 @@ public partial class OverlayManager
 			offeredLine.Text = string.Join("  ", parts);
 			ApplyFont(offeredLine, _fontBody);
 			offeredLine.AddThemeColorOverride("font_color", ClrSub);
-			offeredLine.AddThemeFontSizeOverride("font_size", 11);
+			offeredLine.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			offeredLine.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
 			vbox.AddChild(offeredLine, forceReadableName: false, Node.InternalMode.Disabled);
 
 			scrollContent.AddChild(entry, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 
-		_content.AddChild(scroll, forceReadableName: false, Node.InternalMode.Disabled);
+		target.AddChild(scroll, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
 	/// <summary>
@@ -949,6 +1075,25 @@ public partial class OverlayManager
 		if (Plugin.RunDatabase == null || string.IsNullOrEmpty(character)) return;
 
 		AddSectionHeader("글로벌 통계 비교");
+		AddGlobalStatsComparisonContent(_content, character);
+	}
+
+	/// <summary>
+	/// Global stats comparison targeting a specific container (used by collapsible run summary).
+	/// </summary>
+	private void AddGlobalStatsComparisonTo(VBoxContainer target, string character)
+	{
+		if (Plugin.SteamLeaderboardSync?.Cache == null) return;
+		var cache = Plugin.SteamLeaderboardSync.Cache;
+		if (cache.Leaderboards == null || cache.Leaderboards.Count == 0) return;
+		if (Plugin.RunDatabase == null || string.IsNullOrEmpty(character)) return;
+
+		AddGlobalStatsComparisonContent(target, character);
+	}
+
+	private void AddGlobalStatsComparisonContent(VBoxContainer target, string character)
+	{
+		var cache = Plugin.SteamLeaderboardSync.Cache;
 
 		try
 		{
@@ -959,7 +1104,7 @@ public partial class OverlayManager
 
 			// Show player win rate
 			string charName = char.ToUpper(character[0]) + character.Substring(1);
-			AddStatRow($"{charName} 승률", $"{playerWinRate:P0} ({wins}/{total})",
+			AddStatRowTo(target, $"{charName} 승률", $"{playerWinRate:P0} ({wins}/{total})",
 				playerWinRate >= 0.5f ? ClrPositive : playerWinRate >= 0.3f ? ClrAccent : ClrNegative);
 
 			// Leaderboard summary
@@ -971,7 +1116,7 @@ public partial class OverlayManager
 			}
 			if (totalPlayers > 0)
 			{
-				AddStatRow("글로벌 참가자", $"{totalPlayers:N0}명", ClrSub);
+				AddStatRowTo(target, "글로벌 참가자", $"{totalPlayers:N0}명", ClrSub);
 			}
 
 			// Show top leaderboards
@@ -980,7 +1125,7 @@ public partial class OverlayManager
 			{
 				if (shown >= 5) break;
 				if (board.EntryCount < 10) continue;
-				AddStatRow(board.Name, $"{board.EntryCount:N0}명", ClrSub);
+				AddStatRowTo(target, board.Name, $"{board.EntryCount:N0}명", ClrSub);
 				shown++;
 			}
 
@@ -999,7 +1144,7 @@ public partial class OverlayManager
 						else if (info.Status == PipelineStatus.Failed) failed++;
 						totalMs += info.DurationMs;
 					}
-					AddStatRow("파이프라인", $"{success}/{history.Count} 성공 ({totalMs}ms)",
+					AddStatRowTo(target, "파이프라인", $"{success}/{history.Count} 성공 ({totalMs}ms)",
 						failed == 0 ? ClrPositive : ClrNegative);
 				}
 			}
@@ -1013,7 +1158,7 @@ public partial class OverlayManager
 					string ageStr = age.TotalHours < 1 ? $"{age.TotalMinutes:F0}분 전" :
 						age.TotalDays < 1 ? $"{age.TotalHours:F0}시간 전" :
 						$"{age.TotalDays:F0}일 전";
-					AddStatRow("마지막 업데이트", ageStr, ClrSub);
+					AddStatRowTo(target, "마지막 업데이트", ageStr, ClrSub);
 				}
 			}
 		}

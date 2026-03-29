@@ -11,31 +11,41 @@ namespace QuestceSpire.UI;
 /// <summary>UI element builders — cards, relics, badges, sections, tooltips.</summary>
 public partial class OverlayManager
 {
-	// Archetype bar colors — distinct per slot for easy visual parsing
-	private static readonly Color[] ArchColors = {
-		new Color(0.4f, 0.8f, 0.95f),  // cyan
-		new Color(0.95f, 0.6f, 0.3f),  // orange
-		new Color(0.7f, 0.5f, 0.95f),  // purple
-		new Color(0.3f, 0.9f, 0.5f),   // green
-	};
+	// Archetype bar colors — reference centralized theme tokens
+	private static Color[] ArchColors => OverlayTheme.ArchColors;
 
 	private void AddSectionHeader(string text)
 	{
-		// Separator line before header (except first section)
+		// Separator before header (except first section)
 		if (_content.GetChildCount() > 0)
 		{
 			HSeparator sep = new HSeparator();
-			sep.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.4f), Thickness = 1 });
+			sep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 			_content.AddChild(sep, forceReadableName: false, Node.InternalMode.Disabled);
 		}
+
+		// Header with left accent bar
+		HBoxContainer headerRow = new HBoxContainer();
+		headerRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
+
+		// Accent bar (3px wide, matches section color)
+		ColorRect accentBar = new ColorRect();
+		accentBar.Color = ClrAccent;
+		accentBar.CustomMinimumSize = new Vector2(3f, 0f);
+		accentBar.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+		headerRow.AddChild(accentBar, forceReadableName: false, Node.InternalMode.Disabled);
+
 		Label label = new Label();
 		label.Text = text;
 		ApplyFont(label, _fontBold);
 		label.AddThemeColorOverride("font_color", ClrAccent);
-		label.AddThemeFontSizeOverride("font_size", 18);
+		label.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH1);
 		label.AddThemeConstantOverride("outline_size", 3);
 		label.AddThemeColorOverride("font_outline_color", ClrOutline);
-		_content.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
+		label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		headerRow.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
+
+		_content.AddChild(headerRow, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
 	/// <summary>
@@ -78,10 +88,18 @@ public partial class OverlayManager
 			// Capture for click handler
 			bool localExpanded = isExpanded;
 			string localKey = sectionKey;
+			Label toggleLabel = arrow;
 			headerRow.GuiInput += (InputEvent ev) =>
 			{
 				if (ev is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
 				{
+					// Brief flash feedback on toggle arrow
+					if (GodotObject.IsInstanceValid(toggleLabel))
+					{
+						var flashTween = toggleLabel.CreateTween();
+						flashTween?.TweenProperty(toggleLabel, "modulate", new Color(1.3f, 1.3f, 1.3f, 1f), 0.1f);
+						flashTween?.TweenProperty(toggleLabel, "modulate", Colors.White, 0.15f);
+					}
 					ToggleSectionSetting(localKey, true);
 					Rebuild();
 				}
@@ -94,10 +112,18 @@ public partial class OverlayManager
 		_content.AddChild(sectionContent, forceReadableName: false, Node.InternalMode.Disabled);
 		// Click to collapse
 		string collapseKey = sectionKey;
+		Label collapseToggleLabel = arrow;
 		headerRow.GuiInput += (InputEvent ev) =>
 		{
 			if (ev is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
 			{
+				// Brief flash feedback on toggle arrow
+				if (GodotObject.IsInstanceValid(collapseToggleLabel))
+				{
+					var flashTween = collapseToggleLabel.CreateTween();
+					flashTween?.TweenProperty(collapseToggleLabel, "modulate", new Color(1.3f, 1.3f, 1.3f, 1f), 0.1f);
+					flashTween?.TweenProperty(collapseToggleLabel, "modulate", Colors.White, 0.15f);
+				}
 				ToggleSectionSetting(collapseKey, false);
 				Rebuild();
 			}
@@ -120,7 +146,7 @@ public partial class OverlayManager
 	{
 		PanelContainer panelContainer = CreateEntryPanel(card.IsBestPick, card.FinalGrade);
 		HBoxContainer hBoxContainer = new HBoxContainer();
-		hBoxContainer.AddThemeConstantOverride("separation", 8);
+		hBoxContainer.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		panelContainer.AddChild(hBoxContainer, forceReadableName: false, Node.InternalMode.Disabled);
 		CenterContainer badge = CreateBadge(card.FinalGrade, card.FinalScore);
 		hBoxContainer.AddChild(badge, forceReadableName: false, Node.InternalMode.Disabled);
@@ -148,26 +174,13 @@ public partial class OverlayManager
 		{
 			PanelContainer thumbClip = new PanelContainer();
 			thumbClip.ClipContents = true;
-			thumbClip.CustomMinimumSize = new Vector2(52f, 52f);
-			StyleBoxFlat thumbStyle = new StyleBoxFlat();
-			thumbStyle.BgColor = new Color(0.02f, 0.02f, 0.04f, 1f);
-			thumbStyle.CornerRadiusTopLeft = 8;
-			thumbStyle.CornerRadiusTopRight = 8;
-			thumbStyle.CornerRadiusBottomLeft = 8;
-			thumbStyle.CornerRadiusBottomRight = 8;
-			thumbStyle.BorderWidthTop = 2;
-			thumbStyle.BorderWidthBottom = 2;
-			thumbStyle.BorderWidthLeft = 2;
-			thumbStyle.BorderWidthRight = 2;
-			thumbStyle.BorderColor = card.IsBestPick ? new Color(ClrAccent, 0.9f) : new Color(ClrBorder, 0.7f);
-			thumbStyle.ShadowSize = card.IsBestPick ? 6 : 3;
-			thumbStyle.ShadowColor = card.IsBestPick ? new Color(ClrAccent, 0.3f) : new Color(0f, 0f, 0f, 0.4f);
-			thumbClip.AddThemeStyleboxOverride("panel", thumbStyle);
+			thumbClip.CustomMinimumSize = new Vector2(OverlayTheme.ThumbnailSize, OverlayTheme.ThumbnailSize);
+			thumbClip.AddThemeStyleboxOverride("panel", OverlayStyles.CreateThumbnailStyle(card.IsBestPick));
 			TextureRect thumb = new TextureRect();
 			thumb.Texture = portrait;
 			thumb.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 			thumb.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
-			thumb.CustomMinimumSize = new Vector2(52f, 52f);
+			thumb.CustomMinimumSize = new Vector2(OverlayTheme.ThumbnailSize, OverlayTheme.ThumbnailSize);
 			thumbClip.AddChild(thumb, forceReadableName: false, Node.InternalMode.Disabled);
 			hBoxContainer.AddChild(thumbClip, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -195,7 +208,7 @@ public partial class OverlayManager
 		}
 		VBoxContainer vBoxContainer = new VBoxContainer();
 		vBoxContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		vBoxContainer.AddThemeConstantOverride("separation", 0);
+		vBoxContainer.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 		hBoxContainer.AddChild(vBoxContainer, forceReadableName: false, Node.InternalMode.Disabled);
 		// Card name + sub-grade inline
 		Label label = new Label();
@@ -204,7 +217,7 @@ public partial class OverlayManager
 		label.Text = $"{text}{upgradeTag}";
 		ApplyFont(label, _fontBold);
 		label.AddThemeColorOverride("font_color", card.IsBestPick ? ClrAccent : ClrCream);
-		label.AddThemeFontSizeOverride("font_size", 17);
+		label.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		label.AddThemeConstantOverride("outline_size", 2);
 		label.AddThemeColorOverride("font_outline_color", ClrOutline);
 		label.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
@@ -216,7 +229,7 @@ public partial class OverlayManager
 			Label patchLbl = new Label();
 			patchLbl.Text = patchBadge;
 			ApplyFont(patchLbl, _fontBody);
-			patchLbl.AddThemeFontSizeOverride("font_size", 11);
+			patchLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			patchLbl.AddThemeColorOverride("font_color", ClrExpensive);
 			vBoxContainer.AddChild(patchLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -229,7 +242,7 @@ public partial class OverlayManager
 				Label floorLbl = new Label();
 				floorLbl.Text = floorInfo;
 				ApplyFont(floorLbl, _fontBody);
-				floorLbl.AddThemeFontSizeOverride("font_size", 11);
+				floorLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 				floorLbl.AddThemeColorOverride("font_color", ClrAqua);
 				vBoxContainer.AddChild(floorLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
@@ -251,25 +264,25 @@ public partial class OverlayManager
 		ApplyFont(metaLbl, _fontBody);
 		bool hasAnti = card.AntiSynergyReasons != null && card.AntiSynergyReasons.Count > 0;
 		metaLbl.AddThemeColorOverride("font_color", hasAnti ? ClrNegative : card.Cost >= 3 ? ClrExpensive : ClrSub);
-		metaLbl.AddThemeFontSizeOverride("font_size", 14);
+		metaLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 		metaLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 		vBoxContainer.AddChild(metaLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		// Shop price with gold icon (inline after meta)
 		if (card.Price > 0 && _goldIcon != null)
 		{
 			HBoxContainer priceRow = new HBoxContainer();
-			priceRow.AddThemeConstantOverride("separation", 2);
+			priceRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 			TextureRect goldTex = new TextureRect();
 			goldTex.Texture = _goldIcon;
 			goldTex.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 			goldTex.StretchMode = TextureRect.StretchModeEnum.KeepAspect;
-			goldTex.CustomMinimumSize = new Vector2(12f, 12f);
+			goldTex.CustomMinimumSize = new Vector2(OverlayTheme.GoldIconSize, OverlayTheme.GoldIconSize);
 			priceRow.AddChild(goldTex, forceReadableName: false, Node.InternalMode.Disabled);
 			Label priceLbl = new Label();
 			priceLbl.Text = $"{card.Price}";
 			ApplyFont(priceLbl, _fontBody);
 			priceLbl.AddThemeColorOverride("font_color", ClrAccent);
-			priceLbl.AddThemeFontSizeOverride("font_size", 17);
+			priceLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 			priceRow.AddChild(priceLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			vBoxContainer.AddChild(priceRow, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -278,7 +291,7 @@ public partial class OverlayManager
 		{
 			VBoxContainer detailBox = new VBoxContainer();
 			detailBox.Visible = false;
-			detailBox.AddThemeConstantOverride("separation", 1);
+			detailBox.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 			AddTooltipLines(detailBox, card.SynergyReasons, card.AntiSynergyReasons, card.Notes, card.BaseScore, card.SynergyDelta, card.FloorAdjust, card.DeckSizeAdjust, card.UpgradeAdjust, card.FinalScore, card.ScoreSource);
 			if (detailBox.GetChildCount() > 0)
 			{
@@ -297,7 +310,7 @@ public partial class OverlayManager
 	{
 		PanelContainer panelContainer = CreateEntryPanel(relic.IsBestPick, relic.FinalGrade);
 		HBoxContainer hBoxContainer = new HBoxContainer();
-		hBoxContainer.AddThemeConstantOverride("separation", 8);
+		hBoxContainer.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		panelContainer.AddChild(hBoxContainer, forceReadableName: false, Node.InternalMode.Disabled);
 		CenterContainer relicBadge = CreateBadge(relic.FinalGrade, relic.FinalScore);
 		hBoxContainer.AddChild(relicBadge, forceReadableName: false, Node.InternalMode.Disabled);
@@ -325,32 +338,19 @@ public partial class OverlayManager
 		{
 			PanelContainer relicClip = new PanelContainer();
 			relicClip.ClipContents = true;
-			relicClip.CustomMinimumSize = new Vector2(48f, 48f);
-			StyleBoxFlat relicThumbStyle = new StyleBoxFlat();
-			relicThumbStyle.BgColor = new Color(0.02f, 0.02f, 0.04f, 1f);
-			relicThumbStyle.CornerRadiusTopLeft = 8;
-			relicThumbStyle.CornerRadiusTopRight = 8;
-			relicThumbStyle.CornerRadiusBottomLeft = 8;
-			relicThumbStyle.CornerRadiusBottomRight = 8;
-			relicThumbStyle.BorderWidthTop = 2;
-			relicThumbStyle.BorderWidthBottom = 2;
-			relicThumbStyle.BorderWidthLeft = 2;
-			relicThumbStyle.BorderWidthRight = 2;
-			relicThumbStyle.BorderColor = relic.IsBestPick ? new Color(ClrAccent, 0.9f) : new Color(ClrBorder, 0.7f);
-			relicThumbStyle.ShadowSize = relic.IsBestPick ? 6 : 3;
-			relicThumbStyle.ShadowColor = relic.IsBestPick ? new Color(ClrAccent, 0.3f) : new Color(0f, 0f, 0f, 0.4f);
-			relicClip.AddThemeStyleboxOverride("panel", relicThumbStyle);
+			relicClip.CustomMinimumSize = new Vector2(OverlayTheme.ThumbnailSize, OverlayTheme.ThumbnailSize);
+			relicClip.AddThemeStyleboxOverride("panel", OverlayStyles.CreateThumbnailStyle(relic.IsBestPick));
 			TextureRect thumb = new TextureRect();
 			thumb.Texture = relicIcon;
 			thumb.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 			thumb.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
-			thumb.CustomMinimumSize = new Vector2(48f, 48f);
+			thumb.CustomMinimumSize = new Vector2(OverlayTheme.ThumbnailSize, OverlayTheme.ThumbnailSize);
 			relicClip.AddChild(thumb, forceReadableName: false, Node.InternalMode.Disabled);
 			hBoxContainer.AddChild(relicClip, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		VBoxContainer vBoxContainer = new VBoxContainer();
 		vBoxContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-		vBoxContainer.AddThemeConstantOverride("separation", 0);
+		vBoxContainer.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 		hBoxContainer.AddChild(vBoxContainer, forceReadableName: false, Node.InternalMode.Disabled);
 		// Relic name + sub-grade inline
 		Label label = new Label();
@@ -358,7 +358,7 @@ public partial class OverlayManager
 		label.Text = text;
 		ApplyFont(label, _fontBold);
 		label.AddThemeColorOverride("font_color", relic.IsBestPick ? ClrAccent : ClrCream);
-		label.AddThemeFontSizeOverride("font_size", 17);
+		label.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		label.AddThemeConstantOverride("outline_size", 2);
 		label.AddThemeColorOverride("font_outline_color", ClrOutline);
 		label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
@@ -370,7 +370,7 @@ public partial class OverlayManager
 			Label relicPatchLbl = new Label();
 			relicPatchLbl.Text = relicPatchBadge;
 			ApplyFont(relicPatchLbl, _fontBody);
-			relicPatchLbl.AddThemeFontSizeOverride("font_size", 11);
+			relicPatchLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			relicPatchLbl.AddThemeColorOverride("font_color", ClrExpensive);
 			vBoxContainer.AddChild(relicPatchLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -391,7 +391,7 @@ public partial class OverlayManager
 		ApplyFont(metaLbl, _fontBody);
 		bool hasAnti = relic.AntiSynergyReasons != null && relic.AntiSynergyReasons.Count > 0;
 		metaLbl.AddThemeColorOverride("font_color", hasAnti ? ClrNegative : ClrSub);
-		metaLbl.AddThemeFontSizeOverride("font_size", 14);
+		metaLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 		metaLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 		vBoxContainer.AddChild(metaLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		// Archetype synergy tags (pill badges)
@@ -399,24 +399,17 @@ public partial class OverlayManager
 		if (archTags.Count > 0)
 		{
 			HBoxContainer tagRow = new HBoxContainer();
-			tagRow.AddThemeConstantOverride("separation", 6);
+			tagRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 			int tagColorIdx = 0;
 			foreach (string tag in archTags)
 			{
 				Color tagColor = ArchColors[tagColorIdx % ArchColors.Length];
 				PanelContainer tagChip = new PanelContainer();
-				StyleBoxFlat chipStyle = new StyleBoxFlat();
-				chipStyle.BgColor = new Color(tagColor, 0.12f);
-				chipStyle.CornerRadiusTopLeft = chipStyle.CornerRadiusTopRight = chipStyle.CornerRadiusBottomLeft = chipStyle.CornerRadiusBottomRight = 12;
-				chipStyle.ContentMarginLeft = chipStyle.ContentMarginRight = 10f;
-				chipStyle.ContentMarginTop = chipStyle.ContentMarginBottom = 2f;
-				chipStyle.BorderWidthTop = chipStyle.BorderWidthBottom = chipStyle.BorderWidthLeft = chipStyle.BorderWidthRight = 1;
-				chipStyle.BorderColor = new Color(tagColor, 0.4f);
-				tagChip.AddThemeStyleboxOverride("panel", chipStyle);
+				tagChip.AddThemeStyleboxOverride("panel", OverlayStyles.CreateArchTagChipStyle(tagColor));
 				Label tagLbl = new Label();
 				tagLbl.Text = tag;
 				ApplyFont(tagLbl, _fontBody);
-				tagLbl.AddThemeFontSizeOverride("font_size", 12);
+				tagLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 				tagLbl.AddThemeColorOverride("font_color", tagColor);
 				tagLbl.MouseFilter = Control.MouseFilterEnum.Ignore;
 				tagChip.AddChild(tagLbl, forceReadableName: false, Node.InternalMode.Disabled);
@@ -431,18 +424,18 @@ public partial class OverlayManager
 			if (_goldIcon != null)
 			{
 				HBoxContainer priceRow = new HBoxContainer();
-				priceRow.AddThemeConstantOverride("separation", 2);
+				priceRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 				TextureRect goldTex = new TextureRect();
 				goldTex.Texture = _goldIcon;
 				goldTex.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 				goldTex.StretchMode = TextureRect.StretchModeEnum.KeepAspect;
-				goldTex.CustomMinimumSize = new Vector2(12f, 12f);
+				goldTex.CustomMinimumSize = new Vector2(OverlayTheme.GoldIconSize, OverlayTheme.GoldIconSize);
 				priceRow.AddChild(goldTex, forceReadableName: false, Node.InternalMode.Disabled);
 				Label priceLbl = new Label();
 				priceLbl.Text = $"{relic.Price}";
 				ApplyFont(priceLbl, _fontBody);
 				priceLbl.AddThemeColorOverride("font_color", ClrAccent);
-				priceLbl.AddThemeFontSizeOverride("font_size", 17);
+				priceLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 				priceRow.AddChild(priceLbl, forceReadableName: false, Node.InternalMode.Disabled);
 				vBoxContainer.AddChild(priceRow, forceReadableName: false, Node.InternalMode.Disabled);
 			}
@@ -452,7 +445,7 @@ public partial class OverlayManager
 				pLbl.Text = $"{relic.Price}g";
 				ApplyFont(pLbl, _fontBody);
 				pLbl.AddThemeColorOverride("font_color", ClrAccent);
-				pLbl.AddThemeFontSizeOverride("font_size", 17);
+				pLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 				vBoxContainer.AddChild(pLbl, forceReadableName: false, Node.InternalMode.Disabled);
 			}
 		}
@@ -461,7 +454,7 @@ public partial class OverlayManager
 		{
 			VBoxContainer detailBox = new VBoxContainer();
 			detailBox.Visible = false;
-			detailBox.AddThemeConstantOverride("separation", 1);
+			detailBox.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 			AddTooltipLines(detailBox, relic.SynergyReasons, relic.AntiSynergyReasons, relic.Notes, relic.BaseScore, relic.SynergyDelta, relic.FloorAdjust, relic.DeckSizeAdjust, 0f, relic.FinalScore, relic.ScoreSource);
 			if (detailBox.GetChildCount() > 0)
 			{
@@ -542,7 +535,7 @@ public partial class OverlayManager
 			lbl.Text = notes;
 			ApplyFont(lbl, _fontBody);
 			lbl.AddThemeColorOverride("font_color", ClrNotes);
-			lbl.AddThemeFontSizeOverride("font_size", 14);
+			lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 			lbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 			parent.AddChild(lbl, forceReadableName: false, Node.InternalMode.Disabled);
 			hasContent = true;
@@ -559,7 +552,7 @@ public partial class OverlayManager
 				lbl.Text = "\u2714 " + clean;
 				ApplyFont(lbl, _fontBody);
 				lbl.AddThemeColorOverride("font_color", ClrPositive);
-				lbl.AddThemeFontSizeOverride("font_size", 14);
+				lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				lbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 				parent.AddChild(lbl, forceReadableName: false, Node.InternalMode.Disabled);
 				hasContent = true;
@@ -576,7 +569,7 @@ public partial class OverlayManager
 				lbl.Text = "\u2718 " + clean;
 				ApplyFont(lbl, _fontBody);
 				lbl.AddThemeColorOverride("font_color", ClrNegative);
-				lbl.AddThemeFontSizeOverride("font_size", 14);
+				lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
 				lbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 				parent.AddChild(lbl, forceReadableName: false, Node.InternalMode.Disabled);
 				hasContent = true;
@@ -590,7 +583,7 @@ public partial class OverlayManager
 			srcLbl.Text = "\u2139 내 플레이 데이터 기반 평가";
 			ApplyFont(srcLbl, _fontBody);
 			srcLbl.AddThemeColorOverride("font_color", ClrAqua);
-			srcLbl.AddThemeFontSizeOverride("font_size", 12);
+			srcLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			parent.AddChild(srcLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 	}
@@ -635,7 +628,7 @@ public partial class OverlayManager
 	{
 		PanelContainer panelContainer = CreateEntryPanel(isBest: false);
 		HBoxContainer hBoxContainer = new HBoxContainer();
-		hBoxContainer.AddThemeConstantOverride("separation", 16);
+		hBoxContainer.AddThemeConstantOverride("separation", OverlayTheme.SpaceXL);
 		panelContainer.AddChild(hBoxContainer, forceReadableName: false, Node.InternalMode.Disabled);
 		hBoxContainer.AddChild(CreateSkipBadge(), forceReadableName: false, Node.InternalMode.Disabled);
 		VBoxContainer vBoxContainer = new VBoxContainer();
@@ -645,13 +638,13 @@ public partial class OverlayManager
 		label.Text = title;
 		ApplyFont(label, _fontBold);
 		label.AddThemeColorOverride("font_color", ClrSkip);
-		label.AddThemeFontSizeOverride("font_size", 17);
+		label.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		vBoxContainer.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
 		Label label2 = new Label();
 		label2.Text = reasoning;
 		ApplyFont(label2, _fontBody);
 		label2.AddThemeColorOverride("font_color", ClrSkipSub);
-		label2.AddThemeFontSizeOverride("font_size", 17);
+		label2.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
 		label2.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 		vBoxContainer.AddChild(label2, forceReadableName: false, Node.InternalMode.Disabled);
 		_content.AddChild(panelContainer, forceReadableName: false, Node.InternalMode.Disabled);
@@ -663,7 +656,7 @@ public partial class OverlayManager
 		Color barColor = TierBadge.GetGodotColor(grade);
 
 		HBoxContainer bar = new HBoxContainer();
-		bar.CustomMinimumSize = new Vector2(0, 3);
+		bar.CustomMinimumSize = new Vector2(0, OverlayTheme.ScoreBarHeight);
 		bar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		bar.AddThemeConstantOverride("separation", 0);
 
@@ -671,14 +664,20 @@ public partial class OverlayManager
 		{
 			Panel fill = new Panel();
 			StyleBoxFlat fillStyle = new StyleBoxFlat();
-			fillStyle.BgColor = new Color(barColor, 0.7f);
+			fillStyle.BgColor = new Color(barColor, OverlayTheme.OpScoreBarFill);
 			fillStyle.CornerRadiusTopLeft = fillStyle.CornerRadiusBottomLeft = 2;
 			if (ratio >= 0.99f)
 				fillStyle.CornerRadiusTopRight = fillStyle.CornerRadiusBottomRight = 2;
+			// Subtle top border glow for stronger scores
+			if (ratio > 0.3f)
+			{
+				fillStyle.BorderWidthTop = 1;
+				fillStyle.BorderColor = new Color(barColor, 0.3f);
+			}
 			fill.AddThemeStyleboxOverride("panel", fillStyle);
 			fill.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			fill.SizeFlagsStretchRatio = ratio;
-			fill.CustomMinimumSize = new Vector2(0, 3);
+			fill.CustomMinimumSize = new Vector2(0, OverlayTheme.ScoreBarHeight);
 			bar.AddChild(fill, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 
@@ -686,14 +685,14 @@ public partial class OverlayManager
 		{
 			Panel empty = new Panel();
 			StyleBoxFlat emptyStyle = new StyleBoxFlat();
-			emptyStyle.BgColor = new Color(0.08f, 0.08f, 0.12f, 0.3f);
+			emptyStyle.BgColor = OverlayTheme.BgScoreBarEmpty;
 			emptyStyle.CornerRadiusTopRight = emptyStyle.CornerRadiusBottomRight = 2;
 			if (ratio <= 0.01f)
 				emptyStyle.CornerRadiusTopLeft = emptyStyle.CornerRadiusBottomLeft = 2;
 			empty.AddThemeStyleboxOverride("panel", emptyStyle);
 			empty.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			empty.SizeFlagsStretchRatio = 1.0f - ratio;
-			empty.CustomMinimumSize = new Vector2(0, 3);
+			empty.CustomMinimumSize = new Vector2(0, OverlayTheme.ScoreBarHeight);
 			bar.AddChild(empty, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 
@@ -755,34 +754,20 @@ public partial class OverlayManager
 		string subGrade = score >= 0f ? TierEngine.ScoreToSubGrade(score) : grade.ToString();
 		CenterContainer obj = new CenterContainer
 		{
-			CustomMinimumSize = new Vector2(34f, 34f)
+			CustomMinimumSize = new Vector2(OverlayTheme.BadgeSize, OverlayTheme.BadgeSize)
 		};
 		PanelContainer panelContainer = new PanelContainer
 		{
-			CustomMinimumSize = new Vector2(subGrade.Length > 1 ? 38f : 30f, 30f)
+			CustomMinimumSize = new Vector2(subGrade.Length > 1 ? OverlayTheme.BadgeInnerWide : OverlayTheme.BadgeInnerDefault, OverlayTheme.BadgeInnerDefault)
 		};
-		Color badgeColor = TierBadge.GetGodotColor(grade);
-		StyleBoxFlat styleBoxFlat = new StyleBoxFlat
-		{
-			BgColor = badgeColor
-		};
-		styleBoxFlat.CornerRadiusTopLeft = 0;
-		styleBoxFlat.CornerRadiusTopRight = 10;
-		styleBoxFlat.CornerRadiusBottomLeft = 10;
-		styleBoxFlat.CornerRadiusBottomRight = 0;
-		styleBoxFlat.BorderWidthTop = 1;
-		styleBoxFlat.BorderWidthBottom = 1;
-		styleBoxFlat.BorderWidthLeft = 1;
-		styleBoxFlat.BorderWidthRight = 1;
-		styleBoxFlat.BorderColor = badgeColor.Darkened(0.3f);
-		panelContainer.AddThemeStyleboxOverride("panel", styleBoxFlat);
+		panelContainer.AddThemeStyleboxOverride("panel", OverlayStyles.CreateBadgeStyle(grade));
 		Label label = new Label();
 		label.Text = subGrade;
 		ApplyFont(label, _fontHeader);
 		label.HorizontalAlignment = HorizontalAlignment.Center;
 		label.VerticalAlignment = VerticalAlignment.Center;
 		label.AddThemeColorOverride("font_color", TierBadge.GetTextColor(grade));
-		label.AddThemeFontSizeOverride("font_size", subGrade.Length > 1 ? 17 : 20);
+		label.AddThemeFontSizeOverride("font_size", subGrade.Length > 1 ? OverlayTheme.FontBadgeSmall : OverlayTheme.FontBadgeLarge);
 		label.AddThemeConstantOverride("outline_size", 0);
 		panelContainer.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
 		obj.AddChild(panelContainer, forceReadableName: false, Node.InternalMode.Disabled);
@@ -793,33 +778,20 @@ public partial class OverlayManager
 	{
 		CenterContainer obj = new CenterContainer
 		{
-			CustomMinimumSize = new Vector2(34f, 34f)
+			CustomMinimumSize = new Vector2(OverlayTheme.BadgeSize, OverlayTheme.BadgeSize)
 		};
 		PanelContainer panelContainer = new PanelContainer
 		{
-			CustomMinimumSize = new Vector2(30f, 30f)
+			CustomMinimumSize = new Vector2(OverlayTheme.BadgeInnerDefault, OverlayTheme.BadgeInnerDefault)
 		};
-		StyleBoxFlat styleBoxFlat = new StyleBoxFlat
-		{
-			BgColor = new Color(0.2f, 0.15f, 0.3f)
-		};
-		styleBoxFlat.CornerRadiusTopLeft = 0;
-		styleBoxFlat.CornerRadiusTopRight = 10;
-		styleBoxFlat.CornerRadiusBottomLeft = 10;
-		styleBoxFlat.CornerRadiusBottomRight = 0;
-		styleBoxFlat.BorderWidthTop = 1;
-		styleBoxFlat.BorderWidthBottom = 1;
-		styleBoxFlat.BorderWidthLeft = 1;
-		styleBoxFlat.BorderWidthRight = 1;
-		styleBoxFlat.BorderColor = ClrSkip;
-		panelContainer.AddThemeStyleboxOverride("panel", styleBoxFlat);
+		panelContainer.AddThemeStyleboxOverride("panel", OverlayStyles.CreateSkipBadgeStyle());
 		Label label = new Label();
 		label.Text = "\u2014";
 		ApplyFont(label, _fontHeader);
 		label.HorizontalAlignment = HorizontalAlignment.Center;
 		label.VerticalAlignment = VerticalAlignment.Center;
 		label.AddThemeColorOverride("font_color", ClrSkip);
-		label.AddThemeFontSizeOverride("font_size", 22);
+		label.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSkipBadge);
 		panelContainer.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
 		obj.AddChild(panelContainer, forceReadableName: false, Node.InternalMode.Disabled);
 		return obj;

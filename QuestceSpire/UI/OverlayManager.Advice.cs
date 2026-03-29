@@ -12,7 +12,10 @@ namespace QuestceSpire.UI;
 /// <summary>Advice rendering — per-screen advice generation and display.</summary>
 public partial class OverlayManager
 {
+	private bool _showEnemyDetails = true;  // default expanded
 	private VBoxContainer _combatPileContainer;
+	private VBoxContainer _enemyDetailsContainer;
+	private List<(string icon, string text, Color color)> _enemyDetailsTips;
 
 	private void RebuildCombatPileSection()
 	{
@@ -27,13 +30,13 @@ public partial class OverlayManager
 		}
 
 		_combatPileContainer = new VBoxContainer();
-		_combatPileContainer.AddThemeConstantOverride("separation", 2);
+		_combatPileContainer.AddThemeConstantOverride("separation", OverlayTheme.SpaceXS);
 
 		var snap = _lastCombatSnapshot;
 
 		// ─── Header: pile counts bar ───
 		var headerBox = new HBoxContainer();
-		headerBox.AddThemeConstantOverride("separation", 8);
+		headerBox.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
 		_combatPileContainer.AddChild(headerBox);
 
 		AddPileCountLabel(headerBox, $"\u2660 드로우: {snap.DrawCount}", ClrAqua);
@@ -48,7 +51,7 @@ public partial class OverlayManager
 			var drawHeader = new Label();
 			drawHeader.Text = $"── 드로우 파일 ({snap.DrawCount}장) ──";
 			ApplyFont(drawHeader, _fontBold);
-			drawHeader.AddThemeFontSizeOverride("font_size", 12);
+			drawHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			drawHeader.AddThemeColorOverride("font_color", ClrAqua);
 			_combatPileContainer.AddChild(drawHeader);
 
@@ -65,12 +68,12 @@ public partial class OverlayManager
 				Color typeColor = GetCardTypeColor(card.Type);
 
 				var row = new HBoxContainer();
-				row.AddThemeConstantOverride("separation", 4);
+				row.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 
 				var costLabel = new Label();
 				costLabel.Text = $"[{costStr}]";
 				ApplyFont(costLabel, _fontBody);
-				costLabel.AddThemeFontSizeOverride("font_size", 11);
+				costLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 				costLabel.AddThemeColorOverride("font_color", ClrSub);
 				costLabel.CustomMinimumSize = new Vector2(28, 0);
 				row.AddChild(costLabel);
@@ -78,7 +81,7 @@ public partial class OverlayManager
 				var nameLabel = new Label();
 				nameLabel.Text = group.Key + countStr;
 				ApplyFont(nameLabel, _fontBody);
-				nameLabel.AddThemeFontSizeOverride("font_size", 11);
+				nameLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 				nameLabel.AddThemeColorOverride("font_color", typeColor);
 				nameLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 				row.AddChild(nameLabel);
@@ -93,7 +96,7 @@ public partial class OverlayManager
 			var probHeader = new Label();
 			probHeader.Text = "── 다음 턴 확률 ──";
 			ApplyFont(probHeader, _fontBold);
-			probHeader.AddThemeFontSizeOverride("font_size", 12);
+			probHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			probHeader.AddThemeColorOverride("font_color", ClrAccent);
 			_combatPileContainer.AddChild(probHeader);
 
@@ -106,12 +109,12 @@ public partial class OverlayManager
 				if (pct <= 0) continue;
 
 				var row = new HBoxContainer();
-				row.AddThemeConstantOverride("separation", 4);
+				row.AddThemeConstantOverride("separation", OverlayTheme.SpaceSM);
 
 				var pctLabel = new Label();
 				pctLabel.Text = $"{pct}%";
 				ApplyFont(pctLabel, _fontBold);
-				pctLabel.AddThemeFontSizeOverride("font_size", 11);
+				pctLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 				pctLabel.AddThemeColorOverride("font_color", pct >= 80 ? ClrPositive : pct >= 50 ? ClrAccent : ClrSub);
 				pctLabel.CustomMinimumSize = new Vector2(36, 0);
 				pctLabel.HorizontalAlignment = HorizontalAlignment.Right;
@@ -120,7 +123,7 @@ public partial class OverlayManager
 				var cardLabel = new Label();
 				cardLabel.Text = kvp.Key;
 				ApplyFont(cardLabel, _fontBody);
-				cardLabel.AddThemeFontSizeOverride("font_size", 11);
+				cardLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 				cardLabel.AddThemeColorOverride("font_color", ClrCream);
 				row.AddChild(cardLabel);
 
@@ -135,7 +138,7 @@ public partial class OverlayManager
 			var discardHeader = new Label();
 			discardHeader.Text = $"── 버린 카드 ({snap.DiscardCount}장) ──";
 			ApplyFont(discardHeader, _fontBold);
-			discardHeader.AddThemeFontSizeOverride("font_size", 12);
+			discardHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 			discardHeader.AddThemeColorOverride("font_color", ClrSub);
 			_combatPileContainer.AddChild(discardHeader);
 
@@ -150,7 +153,7 @@ public partial class OverlayManager
 				var lbl = new Label();
 				lbl.Text = $"  {group.Key}{countStr}";
 				ApplyFont(lbl, _fontBody);
-				lbl.AddThemeFontSizeOverride("font_size", 11);
+				lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 				lbl.AddThemeColorOverride("font_color", new Color(ClrSub, 0.8f));
 				_combatPileContainer.AddChild(lbl);
 			}
@@ -158,6 +161,52 @@ public partial class OverlayManager
 
 		// Insert into _content (after existing advice sections)
 		_content.AddChild(_combatPileContainer);
+	}
+
+	private void RebuildEnemyDetailsSection()
+	{
+		if (_content == null || _enemyDetailsTips == null || _enemyDetailsTips.Count == 0) return;
+
+		// Remove old enemy details section if exists
+		if (_enemyDetailsContainer != null && GodotObject.IsInstanceValid(_enemyDetailsContainer))
+		{
+			SafeDisconnectSignals(_enemyDetailsContainer);
+			_enemyDetailsContainer.GetParent()?.RemoveChild(_enemyDetailsContainer);
+			_enemyDetailsContainer.QueueFree();
+		}
+
+		var enemySection = AddCollapsibleSection("적 상세 정보", "combatEnemyDetails", ref _showEnemyDetails);
+		if (enemySection != null)
+		{
+			_enemyDetailsContainer = enemySection;
+			foreach (var (icon, text, color) in _enemyDetailsTips)
+			{
+				PanelContainer advPanel = new PanelContainer();
+				StyleBoxFlat advStyle = new StyleBoxFlat();
+				advStyle.BgColor = new Color(0.05f, 0.07f, 0.12f, 0.5f);
+				advStyle.CornerRadiusTopRight = 8;
+				advStyle.CornerRadiusBottomRight = 8;
+				advStyle.BorderWidthLeft = 3;
+				advStyle.BorderColor = new Color(color, 0.6f);
+				advStyle.ContentMarginLeft = 12f;
+				advStyle.ContentMarginRight = 10f;
+				advStyle.ContentMarginTop = 6f;
+				advStyle.ContentMarginBottom = 6f;
+				advPanel.AddThemeStyleboxOverride("panel", advStyle);
+				Label advLbl = new Label();
+				advLbl.Text = $"{icon}  {text}";
+				ApplyFont(advLbl, _fontBody);
+				advLbl.AddThemeColorOverride("font_color", color);
+				advLbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontBody);
+				advLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+				advPanel.AddChild(advLbl, forceReadableName: false, Node.InternalMode.Disabled);
+				enemySection.AddChild(advPanel, forceReadableName: false, Node.InternalMode.Disabled);
+			}
+		}
+		else
+		{
+			_enemyDetailsContainer = null;
+		}
 	}
 
 	private static string TranslateDangerLevel(string level)
@@ -172,23 +221,14 @@ public partial class OverlayManager
 		};
 	}
 
-	private Color GetCardTypeColor(string type)
-	{
-		return type?.ToLowerInvariant() switch
-		{
-			"attack" => new Color(0.9f, 0.45f, 0.35f),   // red-ish
-			"skill" => new Color(0.45f, 0.75f, 0.95f),     // blue-ish
-			"power" => new Color(0.95f, 0.85f, 0.35f),     // gold-ish
-			_ => ClrCream
-		};
-	}
+	private Color GetCardTypeColor(string type) => OverlayTheme.GetCardTypeColor(type);
 
 	private void AddPileCountLabel(HBoxContainer parent, string text, Color color)
 	{
 		var lbl = new Label();
 		lbl.Text = text;
 		ApplyFont(lbl, _fontBold);
-		lbl.AddThemeFontSizeOverride("font_size", 12);
+		lbl.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
 		lbl.AddThemeColorOverride("font_color", color);
 		parent.AddChild(lbl);
 	}
@@ -437,13 +477,14 @@ public partial class OverlayManager
 		_currentEventId = null;
 		_mapAdvice = new List<(string, string, Color)>();
 
-		// Enemy-specific tips (prepended before generic)
+		// Enemy-specific tips (stored separately for collapsible rendering)
+		_enemyDetailsTips = null;
 		if (_settings.ShowEnemyTips && enemyIds != null && Plugin.EnemyAdvisor != null)
 		{
 			var tips = Plugin.EnemyAdvisor.GetTips(enemyIds);
 			if (tips != null && tips.Count > 0)
 			{
-				_mapAdvice.Add(("##", "적 정보", ClrAccent));
+				_enemyDetailsTips = new List<(string, string, Color)>();
 				foreach (var enemy in tips)
 				{
 					Color dangerColor = enemy.DangerLevel switch
@@ -460,12 +501,12 @@ public partial class OverlayManager
 						"medium" => "\u25c6",
 						_ => "\u25cb"
 					};
-					_mapAdvice.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
+					_enemyDetailsTips.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
 					if (enemy.Tips != null)
 					{
 						foreach (var tip in enemy.Tips)
 						{
-							_mapAdvice.Add(("\u2022", tip, ClrCream));
+							_enemyDetailsTips.Add(("\u2022", tip, ClrCream));
 						}
 					}
 				}
@@ -495,6 +536,7 @@ public partial class OverlayManager
 		}
 		MarkUpdated();
 		Rebuild();
+		RebuildEnemyDetailsSection();
 	}
 
 	public void ShowEventAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int gold, int actNumber, int floor, string eventId = null)
@@ -592,12 +634,13 @@ public partial class OverlayManager
 		{
 			case "COMBAT":
 				_mapAdvice = new List<(string, string, Color)>();
+				_enemyDetailsTips = null;
 				if (_settings.ShowEnemyTips && _currentEnemyIds != null && Plugin.EnemyAdvisor != null)
 				{
 					var tips = Plugin.EnemyAdvisor.GetTips(_currentEnemyIds);
 					if (tips != null && tips.Count > 0)
 					{
-						_mapAdvice.Add(("##", "적 정보", ClrAccent));
+						_enemyDetailsTips = new List<(string, string, Color)>();
 						foreach (var enemy in tips)
 						{
 							Color dangerColor = enemy.DangerLevel switch
@@ -610,10 +653,10 @@ public partial class OverlayManager
 								"extreme" => "\u2620", "high" => "\u26a0",
 								"medium" => "\u25c6", _ => "\u25cb"
 							};
-							_mapAdvice.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
+							_enemyDetailsTips.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
 							if (enemy.Tips != null)
 								foreach (var tip in enemy.Tips)
-									_mapAdvice.Add(("\u2022", tip, ClrCream));
+									_enemyDetailsTips.Add(("\u2022", tip, ClrCream));
 						}
 					}
 				}
@@ -676,6 +719,8 @@ public partial class OverlayManager
 				return;
 		}
 		Rebuild();
+		if (_currentScreen == "COMBAT")
+			RebuildEnemyDetailsSection();
 	}
 
 	public void ShowShopAdvice(List<ScoredCard> cards, List<ScoredRelic> relics, DeckAnalysis deckAnalysis = null, string character = null)
