@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Merchant;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -63,7 +64,10 @@ public static class GameStateReader
 				Plugin.Log("RunState is null — not in a run.");
 				return null;
 			}
-			Player player = runState.Players?.FirstOrDefault();
+			// Use LocalContext.GetMe() for multiplayer safety — always returns the local player
+			Player player = null;
+			try { player = LocalContext.GetMe(runState); } catch { }
+			player ??= runState.Players?.FirstOrDefault();
 			if (player == null)
 			{
 				Plugin.Log("No player found in RunState.");

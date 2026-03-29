@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Models;
 
@@ -66,8 +67,14 @@ public static class CombatTracker
 			if (combatState == null) return null;
 			if (combatState.Players == null || combatState.Players.Count == 0) return null;
 
-			var player = combatState.Players[0];
-			if (player?.PlayerCombatState == null) return null;
+			// Use LocalContext.GetMe() for multiplayer safety
+			var player = LocalContext.GetMe(combatState);
+			if (player?.PlayerCombatState == null)
+			{
+				// Fallback for API compat
+				player = combatState.Players[0];
+				if (player?.PlayerCombatState == null) return null;
+			}
 
 			var snapshot = new CombatSnapshot();
 

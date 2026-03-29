@@ -47,6 +47,9 @@ internal class OverlayInputHandler : Node
 			_owner.StabilizeLayout();
 		}
 
+		// Auto-fade: smooth idle/active opacity transition every frame
+		_owner.ProcessAutoFade(delta);
+
 		_checkTimer += delta;
 		if (_checkTimer >= 1.0)
 		{
