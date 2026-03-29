@@ -15,6 +15,7 @@ using MegaCrit.Sts2.Core.Nodes.Screens.CardSelection;
 using MegaCrit.Sts2.Core.Nodes.Screens.Shops;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Screens.Map;
+using MegaCrit.Sts2.Core.Context;
 using MegaCrit.Sts2.Core.Runs;
 using QuestceSpire.Core;
 using QuestceSpire.GameBridge;
@@ -65,7 +66,10 @@ public static partial class GamePatches
 			RecordHook("OnRunLaunched");
 			if (__result != null)
 			{
-				Player player = __result.Players?.FirstOrDefault();
+				// Use LocalContext.GetMe() for multiplayer safety
+				Player player = null;
+				try { player = LocalContext.GetMe(__result); } catch { }
+				player ??= __result.Players?.FirstOrDefault();
 				string text = "unknown";
 				int ascensionLevel = __result.AscensionLevel;
 				if (player?.Character?.Id != null)
