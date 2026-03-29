@@ -431,13 +431,14 @@ public partial class OverlayManager
 		_currentEventId = null;
 		_mapAdvice = new List<(string, string, Color)>();
 
-		// Enemy-specific tips (prepended before generic)
+		// Enemy-specific tips (stored separately for collapsible rendering)
+		_enemyDetailsTips = null;
 		if (_settings.ShowEnemyTips && enemyIds != null && Plugin.EnemyAdvisor != null)
 		{
 			var tips = Plugin.EnemyAdvisor.GetTips(enemyIds);
 			if (tips != null && tips.Count > 0)
 			{
-				_mapAdvice.Add(("##", "적 정보", ClrAccent));
+				_enemyDetailsTips = new List<(string, string, Color)>();
 				foreach (var enemy in tips)
 				{
 					Color dangerColor = enemy.DangerLevel switch
@@ -454,12 +455,12 @@ public partial class OverlayManager
 						"medium" => "\u25c6",
 						_ => "\u25cb"
 					};
-					_mapAdvice.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
+					_enemyDetailsTips.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
 					if (enemy.Tips != null)
 					{
 						foreach (var tip in enemy.Tips)
 						{
-							_mapAdvice.Add(("\u2022", tip, ClrCream));
+							_enemyDetailsTips.Add(("\u2022", tip, ClrCream));
 						}
 					}
 				}
@@ -489,6 +490,7 @@ public partial class OverlayManager
 		}
 		MarkUpdated();
 		Rebuild();
+		RebuildEnemyDetailsSection();
 	}
 
 	public void ShowEventAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int gold, int actNumber, int floor, string eventId = null)
@@ -586,12 +588,13 @@ public partial class OverlayManager
 		{
 			case "COMBAT":
 				_mapAdvice = new List<(string, string, Color)>();
+				_enemyDetailsTips = null;
 				if (_settings.ShowEnemyTips && _currentEnemyIds != null && Plugin.EnemyAdvisor != null)
 				{
 					var tips = Plugin.EnemyAdvisor.GetTips(_currentEnemyIds);
 					if (tips != null && tips.Count > 0)
 					{
-						_mapAdvice.Add(("##", "적 정보", ClrAccent));
+						_enemyDetailsTips = new List<(string, string, Color)>();
 						foreach (var enemy in tips)
 						{
 							Color dangerColor = enemy.DangerLevel switch
@@ -604,10 +607,10 @@ public partial class OverlayManager
 								"extreme" => "\u2620", "high" => "\u26a0",
 								"medium" => "\u25c6", _ => "\u25cb"
 							};
-							_mapAdvice.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
+							_enemyDetailsTips.Add((dangerIcon, $"{GameStateReader.GetLocalizedName("enemy", enemy.EnemyId) ?? enemy.EnemyName} [{TranslateDangerLevel(enemy.DangerLevel)}]", dangerColor));
 							if (enemy.Tips != null)
 								foreach (var tip in enemy.Tips)
-									_mapAdvice.Add(("\u2022", tip, ClrCream));
+									_enemyDetailsTips.Add(("\u2022", tip, ClrCream));
 						}
 					}
 				}
@@ -670,6 +673,8 @@ public partial class OverlayManager
 				return;
 		}
 		Rebuild();
+		if (_currentScreen == "COMBAT")
+			RebuildEnemyDetailsSection();
 	}
 
 	public void ShowShopAdvice(List<ScoredCard> cards, List<ScoredRelic> relics, DeckAnalysis deckAnalysis = null, string character = null)

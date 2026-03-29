@@ -71,8 +71,6 @@ public partial class OverlayManager
 		AddSettingsToggle(menuVBox, "결정 기록", _showHistory, () => { ToggleHistory(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "덱 구성 표시", _showDeckBreakdown, () => { _showDeckBreakdown = !_showDeckBreakdown; _settings.ShowDeckBreakdown = _showDeckBreakdown; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "자동 페이드", _settings.AutoFadeEnabled, () => { _settings.AutoFadeEnabled = !_settings.AutoFadeEnabled; if (!_settings.AutoFadeEnabled) { _fadeValue = 1.0f; _fadeTarget = 1.0f; if (_panel != null && GodotObject.IsInstanceValid(_panel)) _panel.Modulate = Colors.White; } _settings.Save(); RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "패치 변경 표시", _settings.ShowPatchChanges, () => { _settings.ShowPatchChanges = !_settings.ShowPatchChanges; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "층별 티어 정보", _settings.ShowFloorTierInfo, () => { _settings.ShowFloorTierInfo = !_settings.ShowFloorTierInfo; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
 
 		// ── 조언 (Advice) ──
 		AddSettingsGroupHeader(menuVBox, "조언");
@@ -92,9 +90,11 @@ public partial class OverlayManager
 
 		// ── 고급 (Advanced) ──
 		AddSettingsGroupHeader(menuVBox, "고급");
-		AddSettingsToggle(menuVBox, "런 건강도", _settings.ShowRunHealth, () => { _settings.ShowRunHealth = !_settings.ShowRunHealth; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "메타 아키타입", _settings.ShowMetaArchetypes, () => { _settings.ShowMetaArchetypes = !_settings.ShowMetaArchetypes; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "패치 변경 표시", _settings.ShowPatchChanges, () => { _settings.ShowPatchChanges = !_settings.ShowPatchChanges; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "층별 티어 정보", _settings.ShowFloorTierInfo, () => { _settings.ShowFloorTierInfo = !_settings.ShowFloorTierInfo; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "카드 조합 시너지", _settings.ShowCoPickSynergy, () => { _settings.ShowCoPickSynergy = !_settings.ShowCoPickSynergy; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "메타 아키타입", _settings.ShowMetaArchetypes, () => { _settings.ShowMetaArchetypes = !_settings.ShowMetaArchetypes; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "런 건강도", _settings.ShowRunHealth, () => { _settings.ShowRunHealth = !_settings.ShowRunHealth; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "런 요약", _settings.ShowRunSummary, () => { _settings.ShowRunSummary = !_settings.ShowRunSummary; _settings.Save(); RefreshSettingsMenu(); });
 
 		// Opacity section
@@ -241,6 +241,20 @@ public partial class OverlayManager
 		menuVBox.AddChild(hideBtn, forceReadableName: false, Node.InternalMode.Disabled);
 
 		_layer.AddChild(_settingsMenu, forceReadableName: false, Node.InternalMode.Disabled);
+	}
+
+	private void AddSettingsGroupHeader(VBoxContainer container, string groupName)
+	{
+		HSeparator sep = new HSeparator();
+		sep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
+		container.AddChild(sep, forceReadableName: false, Node.InternalMode.Disabled);
+
+		Label groupHeader = new Label();
+		groupHeader.Text = groupName;
+		ApplyFont(groupHeader, _fontBold);
+		groupHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
+		groupHeader.AddThemeColorOverride("font_color", ClrAccent);
+		container.AddChild(groupHeader, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
 	private void AddSettingsToggle(VBoxContainer parent, string label, bool currentValue, Action onToggle)
