@@ -64,12 +64,12 @@ public static class OverlayTheme
 
     public static Color GetTierColor(TierGrade grade) => grade switch
     {
-        TierGrade.S => new Color(1f, 0.84f, 0f),
-        TierGrade.A => new Color(0.2f, 0.8f, 0.2f),
-        TierGrade.B => new Color(0.3f, 0.5f, 1f),
-        TierGrade.C => new Color(0.6f, 0.6f, 0.6f),
-        TierGrade.D => new Color(0.8f, 0.4f, 0.2f),
-        TierGrade.F => new Color(0.9f, 0.2f, 0.2f),
+        TierGrade.S => new Color(1f, 0.84f, 0f),          // Gold
+        TierGrade.A => new Color(0.2f, 0.8f, 0.2f),       // Emerald green
+        TierGrade.B => new Color(0.3f, 0.71f, 0.66f),     // Teal — distinct from skill blue
+        TierGrade.C => new Color(0.6f, 0.6f, 0.6f),       // Grey
+        TierGrade.D => new Color(0.65f, 0.47f, 0.35f),    // Tan brown — distinct from warning orange
+        TierGrade.F => new Color(0.9f, 0.2f, 0.2f),       // Red
         _ => new Color(0.6f, 0.6f, 0.6f),
     };
 

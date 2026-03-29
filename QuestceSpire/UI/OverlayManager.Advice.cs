@@ -12,7 +12,10 @@ namespace QuestceSpire.UI;
 /// <summary>Advice rendering — per-screen advice generation and display.</summary>
 public partial class OverlayManager
 {
+	private bool _showEnemyDetails = true;  // default expanded
 	private VBoxContainer _combatPileContainer;
+	private VBoxContainer _enemyDetailsContainer;
+	private List<(string icon, string text, Color color)> _enemyDetailsTips;
 
 	private void RebuildCombatPileSection()
 	{

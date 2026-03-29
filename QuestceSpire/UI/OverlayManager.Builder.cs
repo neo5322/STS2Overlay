@@ -16,13 +16,25 @@ public partial class OverlayManager
 
 	private void AddSectionHeader(string text)
 	{
-		// Separator line before header (except first section)
+		// Separator before header (except first section)
 		if (_content.GetChildCount() > 0)
 		{
 			HSeparator sep = new HSeparator();
-			sep.AddThemeStyleboxOverride("separator", new StyleBoxLine { Color = new Color(ClrBorder, 0.4f), Thickness = 1 });
+			sep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 			_content.AddChild(sep, forceReadableName: false, Node.InternalMode.Disabled);
 		}
+
+		// Header with left accent bar
+		HBoxContainer headerRow = new HBoxContainer();
+		headerRow.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD);
+
+		// Accent bar (3px wide, matches section color)
+		ColorRect accentBar = new ColorRect();
+		accentBar.Color = ClrAccent;
+		accentBar.CustomMinimumSize = new Vector2(3f, 0f);
+		accentBar.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+		headerRow.AddChild(accentBar, forceReadableName: false, Node.InternalMode.Disabled);
+
 		Label label = new Label();
 		label.Text = text;
 		ApplyFont(label, _fontBold);
@@ -30,7 +42,10 @@ public partial class OverlayManager
 		label.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH1);
 		label.AddThemeConstantOverride("outline_size", 3);
 		label.AddThemeColorOverride("font_outline_color", ClrOutline);
-		_content.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
+		label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		headerRow.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
+
+		_content.AddChild(headerRow, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
 	/// <summary>
@@ -73,10 +88,18 @@ public partial class OverlayManager
 			// Capture for click handler
 			bool localExpanded = isExpanded;
 			string localKey = sectionKey;
+			Label toggleLabel = arrow;
 			headerRow.GuiInput += (InputEvent ev) =>
 			{
 				if (ev is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
 				{
+					// Brief flash feedback on toggle arrow
+					if (GodotObject.IsInstanceValid(toggleLabel))
+					{
+						var flashTween = toggleLabel.CreateTween();
+						flashTween?.TweenProperty(toggleLabel, "modulate", new Color(1.3f, 1.3f, 1.3f, 1f), 0.1f);
+						flashTween?.TweenProperty(toggleLabel, "modulate", Colors.White, 0.15f);
+					}
 					ToggleSectionSetting(localKey, true);
 					Rebuild();
 				}
@@ -89,10 +112,18 @@ public partial class OverlayManager
 		_content.AddChild(sectionContent, forceReadableName: false, Node.InternalMode.Disabled);
 		// Click to collapse
 		string collapseKey = sectionKey;
+		Label collapseToggleLabel = arrow;
 		headerRow.GuiInput += (InputEvent ev) =>
 		{
 			if (ev is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
 			{
+				// Brief flash feedback on toggle arrow
+				if (GodotObject.IsInstanceValid(collapseToggleLabel))
+				{
+					var flashTween = collapseToggleLabel.CreateTween();
+					flashTween?.TweenProperty(collapseToggleLabel, "modulate", new Color(1.3f, 1.3f, 1.3f, 1f), 0.1f);
+					flashTween?.TweenProperty(collapseToggleLabel, "modulate", Colors.White, 0.15f);
+				}
 				ToggleSectionSetting(collapseKey, false);
 				Rebuild();
 			}
@@ -637,6 +668,12 @@ public partial class OverlayManager
 			fillStyle.CornerRadiusTopLeft = fillStyle.CornerRadiusBottomLeft = 2;
 			if (ratio >= 0.99f)
 				fillStyle.CornerRadiusTopRight = fillStyle.CornerRadiusBottomRight = 2;
+			// Subtle top border glow for stronger scores
+			if (ratio > 0.3f)
+			{
+				fillStyle.BorderWidthTop = 1;
+				fillStyle.BorderColor = new Color(barColor, 0.3f);
+			}
 			fill.AddThemeStyleboxOverride("panel", fillStyle);
 			fill.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			fill.SizeFlagsStretchRatio = ratio;

@@ -1159,22 +1159,27 @@ public partial class OverlayManager
 			_gearButton.Pressed += () => ToggleSettingsMenu();
 			_content.AddChild(_gearButton, forceReadableName: false, Node.InternalMode.Disabled);
 		}
-		ResizePanelToContent();
-		// V2: Slide-in + fade on screen change
+		// Stagger fade-in for card/relic entries on screen change
 		if (screenChanged && _content != null && GodotObject.IsInstanceValid(_content))
 		{
-			_content.Modulate = new Color(1, 1, 1, 0);
-			_content.Position = new Vector2(8f, 0f);
-			var tween = _content.CreateTween();
-			if (tween != null)
+			int entryIdx = 0;
+			foreach (Node child in _content.GetChildren())
 			{
-				tween.SetParallel(true);
-				tween.TweenProperty(_content, "modulate", Colors.White, 0.25f)
-					.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
-				tween.TweenProperty(_content, "position", Vector2.Zero, 0.2f)
-					.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+				if (child is PanelContainer entry)
+				{
+					entry.Modulate = new Color(1, 1, 1, 0);
+					var tw = entry.CreateTween();
+					if (tw != null)
+					{
+						tw.TweenProperty(entry, "modulate:a", 1f, 0.15f)
+							.SetDelay(entryIdx * 0.04f)
+							.SetEase(Tween.EaseType.Out);
+					}
+					entryIdx++;
+				}
 			}
 		}
+		ResizePanelToContent();
 		_previousScreen = _currentScreen;
 	}
 

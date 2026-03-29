@@ -65,39 +65,37 @@ public partial class OverlayManager
 		sep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
 		menuVBox.AddChild(sep, forceReadableName: false, Node.InternalMode.Disabled);
 
-		// Menu items
+		// ── 표시 (Display) ──
+		AddSettingsGroupHeader(menuVBox, "표시");
 		AddSettingsToggle(menuVBox, "인게임 뱃지", _showInGameBadges, () => { ToggleInGameBadges(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "결정 기록", _showHistory, () => { ToggleHistory(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "덱 구성 표시", _showDeckBreakdown, () => { _showDeckBreakdown = !_showDeckBreakdown; _settings.ShowDeckBreakdown = _showDeckBreakdown; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "자동 페이드", _settings.AutoFadeEnabled, () => { _settings.AutoFadeEnabled = !_settings.AutoFadeEnabled; if (!_settings.AutoFadeEnabled) { _fadeValue = 1.0f; _fadeTarget = 1.0f; if (_panel != null && GodotObject.IsInstanceValid(_panel)) _panel.Modulate = Colors.White; } _settings.Save(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "패치 변경 표시", _settings.ShowPatchChanges, () => { _settings.ShowPatchChanges = !_settings.ShowPatchChanges; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "층별 티어 정보", _settings.ShowFloorTierInfo, () => { _settings.ShowFloorTierInfo = !_settings.ShowFloorTierInfo; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
+
+		// ── 조언 (Advice) ──
+		AddSettingsGroupHeader(menuVBox, "조언");
 		AddSettingsToggle(menuVBox, "적 팁", _settings.ShowEnemyTips, () => { _settings.ShowEnemyTips = !_settings.ShowEnemyTips; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "이벤트 조언", _settings.ShowEventAdvice, () => { _settings.ShowEventAdvice = !_settings.ShowEventAdvice; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "지도 조언", _settings.ShowMapAdvice, () => { _settings.ShowMapAdvice = !_settings.ShowMapAdvice; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "전투 조언", _settings.ShowCombatAdvice, () => { _settings.ShowCombatAdvice = !_settings.ShowCombatAdvice; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "전투 파일 추적", _showCombatPiles, () => { _showCombatPiles = !_showCombatPiles; if (!_showCombatPiles && _combatPileContainer != null) { _combatPileContainer.GetParent()?.RemoveChild(_combatPileContainer); _combatPileContainer.QueueFree(); _combatPileContainer = null; } RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "자동 페이드", _settings.AutoFadeEnabled, () => { _settings.AutoFadeEnabled = !_settings.AutoFadeEnabled; if (!_settings.AutoFadeEnabled) { _fadeValue = 1.0f; _fadeTarget = 1.0f; if (_panel != null && GodotObject.IsInstanceValid(_panel)) _panel.Modulate = Colors.White; } _settings.Save(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "포션 조언", _settings.ShowPotionAdvice, () => { _settings.ShowPotionAdvice = !_settings.ShowPotionAdvice; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "보스 대비", _settings.ShowBossReadiness, () => { _settings.ShowBossReadiness = !_settings.ShowBossReadiness; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
+
+		// ── 데이터 (Data) ──
+		AddSettingsGroupHeader(menuVBox, "데이터");
 		AddSettingsToggle(menuVBox, "클라우드 동기화", _settings.CloudSyncEnabled, () => { _settings.CloudSyncEnabled = !_settings.CloudSyncEnabled; _settings.Save(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "데이터 자동 업데이트", _settings.AutoUpdateData, () => { _settings.AutoUpdateData = !_settings.AutoUpdateData; _settings.Save(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "파이프라인 동기화", _settings.EnablePipelineSync, () => { _settings.EnablePipelineSync = !_settings.EnablePipelineSync; _settings.Save(); RefreshSettingsMenu(); });
 
-		// v0.14.1: Pipeline & feature toggles
-		HSeparator pipeSep = new HSeparator();
-		pipeSep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
-		menuVBox.AddChild(pipeSep, forceReadableName: false, Node.InternalMode.Disabled);
-		Label pipeHeader = new Label();
-		pipeHeader.Text = "기능 토글";
-		ApplyFont(pipeHeader, _fontBold);
-		pipeHeader.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
-		pipeHeader.AddThemeColorOverride("font_color", ClrAccent);
-		menuVBox.AddChild(pipeHeader, forceReadableName: false, Node.InternalMode.Disabled);
-
-		AddSettingsToggle(menuVBox, "포션 조언", _settings.ShowPotionAdvice, () => { _settings.ShowPotionAdvice = !_settings.ShowPotionAdvice; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
+		// ── 고급 (Advanced) ──
+		AddSettingsGroupHeader(menuVBox, "고급");
 		AddSettingsToggle(menuVBox, "런 건강도", _settings.ShowRunHealth, () => { _settings.ShowRunHealth = !_settings.ShowRunHealth; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "보스 대비", _settings.ShowBossReadiness, () => { _settings.ShowBossReadiness = !_settings.ShowBossReadiness; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "메타 아키타입", _settings.ShowMetaArchetypes, () => { _settings.ShowMetaArchetypes = !_settings.ShowMetaArchetypes; _settings.Save(); RegenerateAdvice(); RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "패치 변경 표시", _settings.ShowPatchChanges, () => { _settings.ShowPatchChanges = !_settings.ShowPatchChanges; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "층별 티어 정보", _settings.ShowFloorTierInfo, () => { _settings.ShowFloorTierInfo = !_settings.ShowFloorTierInfo; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "카드 조합 시너지", _settings.ShowCoPickSynergy, () => { _settings.ShowCoPickSynergy = !_settings.ShowCoPickSynergy; _settings.Save(); Rebuild(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "런 요약", _settings.ShowRunSummary, () => { _settings.ShowRunSummary = !_settings.ShowRunSummary; _settings.Save(); RefreshSettingsMenu(); });
-		AddSettingsToggle(menuVBox, "파이프라인 동기화", _settings.EnablePipelineSync, () => { _settings.EnablePipelineSync = !_settings.EnablePipelineSync; _settings.Save(); RefreshSettingsMenu(); });
 
 		// Opacity section
 		HSeparator sep2 = new HSeparator();
@@ -301,6 +299,19 @@ public partial class OverlayManager
 		_settingsMenu.OffsetTop = panelTop + 40;
 		_settingsMenu.OffsetBottom = panelTop + 300;
 		_settingsMenu.ResetSize();
+	}
+
+	private void AddSettingsGroupHeader(VBoxContainer parent, string text)
+	{
+		HSeparator sep = new HSeparator();
+		sep.AddThemeStyleboxOverride("separator", OverlayStyles.CreateSeparatorStyle());
+		parent.AddChild(sep, forceReadableName: false, Node.InternalMode.Disabled);
+		Label header = new Label();
+		header.Text = text;
+		ApplyFont(header, _fontBold);
+		header.AddThemeFontSizeOverride("font_size", OverlayTheme.FontSmall);
+		header.AddThemeColorOverride("font_color", ClrAccent);
+		parent.AddChild(header, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
 	private void RefreshSettingsMenu()
