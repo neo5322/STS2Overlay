@@ -142,30 +142,32 @@ public partial class OverlayManager
 				}
 			}).CallDeferred();
 		}
-		// Card portrait thumbnail (rounded corners with border)
+		// Card portrait thumbnail (rounded corners with border + inner shadow)
 		Texture2D portrait = GetCardPortrait(card.Id, _currentCharacter);
 		if (portrait != null)
 		{
 			PanelContainer thumbClip = new PanelContainer();
 			thumbClip.ClipContents = true;
-			thumbClip.CustomMinimumSize = new Vector2(36f, 36f);
+			thumbClip.CustomMinimumSize = new Vector2(52f, 52f);
 			StyleBoxFlat thumbStyle = new StyleBoxFlat();
-			thumbStyle.BgColor = new Color(0, 0, 0, 0);
-			thumbStyle.CornerRadiusTopLeft = 6;
-			thumbStyle.CornerRadiusTopRight = 6;
-			thumbStyle.CornerRadiusBottomLeft = 6;
-			thumbStyle.CornerRadiusBottomRight = 6;
+			thumbStyle.BgColor = new Color(0.02f, 0.02f, 0.04f, 1f);
+			thumbStyle.CornerRadiusTopLeft = 8;
+			thumbStyle.CornerRadiusTopRight = 8;
+			thumbStyle.CornerRadiusBottomLeft = 8;
+			thumbStyle.CornerRadiusBottomRight = 8;
 			thumbStyle.BorderWidthTop = 2;
 			thumbStyle.BorderWidthBottom = 2;
 			thumbStyle.BorderWidthLeft = 2;
 			thumbStyle.BorderWidthRight = 2;
-			thumbStyle.BorderColor = new Color(ClrBorder, 0.8f);
+			thumbStyle.BorderColor = card.IsBestPick ? new Color(ClrAccent, 0.9f) : new Color(ClrBorder, 0.7f);
+			thumbStyle.ShadowSize = card.IsBestPick ? 6 : 3;
+			thumbStyle.ShadowColor = card.IsBestPick ? new Color(ClrAccent, 0.3f) : new Color(0f, 0f, 0f, 0.4f);
 			thumbClip.AddThemeStyleboxOverride("panel", thumbStyle);
 			TextureRect thumb = new TextureRect();
 			thumb.Texture = portrait;
 			thumb.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 			thumb.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
-			thumb.CustomMinimumSize = new Vector2(36f, 36f);
+			thumb.CustomMinimumSize = new Vector2(52f, 52f);
 			thumbClip.AddChild(thumb, forceReadableName: false, Node.InternalMode.Disabled);
 			hBoxContainer.AddChild(thumbClip, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -286,6 +288,8 @@ public partial class OverlayManager
 					() => { if (GodotObject.IsInstanceValid(detailBox)) detailBox.Visible = false; });
 			}
 		}
+		// Score bar — thin visual indicator of card strength
+		vBoxContainer.AddChild(CreateScoreBar(card.FinalScore, card.FinalGrade), forceReadableName: false, Node.InternalMode.Disabled);
 		_content.AddChild(panelContainer, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
@@ -315,30 +319,32 @@ public partial class OverlayManager
 				}
 			}).CallDeferred();
 		}
-		// Relic icon thumbnail (rounded corners with border)
+		// Relic icon thumbnail (rounded corners with border + inner shadow)
 		Texture2D relicIcon = GetRelicIcon(relic.Id);
 		if (relicIcon != null)
 		{
 			PanelContainer relicClip = new PanelContainer();
 			relicClip.ClipContents = true;
-			relicClip.CustomMinimumSize = new Vector2(36f, 36f);
+			relicClip.CustomMinimumSize = new Vector2(48f, 48f);
 			StyleBoxFlat relicThumbStyle = new StyleBoxFlat();
-			relicThumbStyle.BgColor = new Color(0, 0, 0, 0);
-			relicThumbStyle.CornerRadiusTopLeft = 6;
-			relicThumbStyle.CornerRadiusTopRight = 6;
-			relicThumbStyle.CornerRadiusBottomLeft = 6;
-			relicThumbStyle.CornerRadiusBottomRight = 6;
+			relicThumbStyle.BgColor = new Color(0.02f, 0.02f, 0.04f, 1f);
+			relicThumbStyle.CornerRadiusTopLeft = 8;
+			relicThumbStyle.CornerRadiusTopRight = 8;
+			relicThumbStyle.CornerRadiusBottomLeft = 8;
+			relicThumbStyle.CornerRadiusBottomRight = 8;
 			relicThumbStyle.BorderWidthTop = 2;
 			relicThumbStyle.BorderWidthBottom = 2;
 			relicThumbStyle.BorderWidthLeft = 2;
 			relicThumbStyle.BorderWidthRight = 2;
-			relicThumbStyle.BorderColor = new Color(ClrBorder, 0.8f);
+			relicThumbStyle.BorderColor = relic.IsBestPick ? new Color(ClrAccent, 0.9f) : new Color(ClrBorder, 0.7f);
+			relicThumbStyle.ShadowSize = relic.IsBestPick ? 6 : 3;
+			relicThumbStyle.ShadowColor = relic.IsBestPick ? new Color(ClrAccent, 0.3f) : new Color(0f, 0f, 0f, 0.4f);
 			relicClip.AddThemeStyleboxOverride("panel", relicThumbStyle);
 			TextureRect thumb = new TextureRect();
 			thumb.Texture = relicIcon;
 			thumb.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
 			thumb.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
-			thumb.CustomMinimumSize = new Vector2(36f, 36f);
+			thumb.CustomMinimumSize = new Vector2(48f, 48f);
 			relicClip.AddChild(thumb, forceReadableName: false, Node.InternalMode.Disabled);
 			hBoxContainer.AddChild(relicClip, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -388,20 +394,34 @@ public partial class OverlayManager
 		metaLbl.AddThemeFontSizeOverride("font_size", 14);
 		metaLbl.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 		vBoxContainer.AddChild(metaLbl, forceReadableName: false, Node.InternalMode.Disabled);
-		// Archetype synergy tags
+		// Archetype synergy tags (pill badges)
 		var archTags = ExtractArchetypeTags(relic.SynergyReasons);
 		if (archTags.Count > 0)
 		{
 			HBoxContainer tagRow = new HBoxContainer();
-			tagRow.AddThemeConstantOverride("separation", 4);
+			tagRow.AddThemeConstantOverride("separation", 6);
+			int tagColorIdx = 0;
 			foreach (string tag in archTags)
 			{
+				Color tagColor = ArchColors[tagColorIdx % ArchColors.Length];
+				PanelContainer tagChip = new PanelContainer();
+				StyleBoxFlat chipStyle = new StyleBoxFlat();
+				chipStyle.BgColor = new Color(tagColor, 0.12f);
+				chipStyle.CornerRadiusTopLeft = chipStyle.CornerRadiusTopRight = chipStyle.CornerRadiusBottomLeft = chipStyle.CornerRadiusBottomRight = 12;
+				chipStyle.ContentMarginLeft = chipStyle.ContentMarginRight = 10f;
+				chipStyle.ContentMarginTop = chipStyle.ContentMarginBottom = 2f;
+				chipStyle.BorderWidthTop = chipStyle.BorderWidthBottom = chipStyle.BorderWidthLeft = chipStyle.BorderWidthRight = 1;
+				chipStyle.BorderColor = new Color(tagColor, 0.4f);
+				tagChip.AddThemeStyleboxOverride("panel", chipStyle);
 				Label tagLbl = new Label();
-				tagLbl.Text = $"[{tag}]";
+				tagLbl.Text = tag;
 				ApplyFont(tagLbl, _fontBody);
-				tagLbl.AddThemeFontSizeOverride("font_size", 17);
-				tagLbl.AddThemeColorOverride("font_color", ClrAccent);
-				tagRow.AddChild(tagLbl, forceReadableName: false, Node.InternalMode.Disabled);
+				tagLbl.AddThemeFontSizeOverride("font_size", 12);
+				tagLbl.AddThemeColorOverride("font_color", tagColor);
+				tagLbl.MouseFilter = Control.MouseFilterEnum.Ignore;
+				tagChip.AddChild(tagLbl, forceReadableName: false, Node.InternalMode.Disabled);
+				tagRow.AddChild(tagChip, forceReadableName: false, Node.InternalMode.Disabled);
+				tagColorIdx++;
 			}
 			vBoxContainer.AddChild(tagRow, forceReadableName: false, Node.InternalMode.Disabled);
 		}
@@ -451,6 +471,8 @@ public partial class OverlayManager
 					() => { if (GodotObject.IsInstanceValid(detailBox)) detailBox.Visible = false; });
 			}
 		}
+		// Score bar — thin visual indicator of relic strength
+		vBoxContainer.AddChild(CreateScoreBar(relic.FinalScore, relic.FinalGrade), forceReadableName: false, Node.InternalMode.Disabled);
 		_content.AddChild(panelContainer, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
@@ -635,6 +657,49 @@ public partial class OverlayManager
 		_content.AddChild(panelContainer, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
+	private Control CreateScoreBar(float score, TierGrade grade)
+	{
+		float ratio = Mathf.Clamp(score / 5.0f, 0f, 1f);
+		Color barColor = TierBadge.GetGodotColor(grade);
+
+		HBoxContainer bar = new HBoxContainer();
+		bar.CustomMinimumSize = new Vector2(0, 3);
+		bar.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		bar.AddThemeConstantOverride("separation", 0);
+
+		if (ratio > 0.01f)
+		{
+			Panel fill = new Panel();
+			StyleBoxFlat fillStyle = new StyleBoxFlat();
+			fillStyle.BgColor = new Color(barColor, 0.7f);
+			fillStyle.CornerRadiusTopLeft = fillStyle.CornerRadiusBottomLeft = 2;
+			if (ratio >= 0.99f)
+				fillStyle.CornerRadiusTopRight = fillStyle.CornerRadiusBottomRight = 2;
+			fill.AddThemeStyleboxOverride("panel", fillStyle);
+			fill.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			fill.SizeFlagsStretchRatio = ratio;
+			fill.CustomMinimumSize = new Vector2(0, 3);
+			bar.AddChild(fill, forceReadableName: false, Node.InternalMode.Disabled);
+		}
+
+		if (ratio < 0.99f)
+		{
+			Panel empty = new Panel();
+			StyleBoxFlat emptyStyle = new StyleBoxFlat();
+			emptyStyle.BgColor = new Color(0.08f, 0.08f, 0.12f, 0.3f);
+			emptyStyle.CornerRadiusTopRight = emptyStyle.CornerRadiusBottomRight = 2;
+			if (ratio <= 0.01f)
+				emptyStyle.CornerRadiusTopLeft = emptyStyle.CornerRadiusBottomLeft = 2;
+			empty.AddThemeStyleboxOverride("panel", emptyStyle);
+			empty.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			empty.SizeFlagsStretchRatio = 1.0f - ratio;
+			empty.CustomMinimumSize = new Vector2(0, 3);
+			bar.AddChild(empty, forceReadableName: false, Node.InternalMode.Disabled);
+		}
+
+		return bar;
+	}
+
 	private PanelContainer CreateEntryPanel(bool isBest, TierGrade grade = TierGrade.C)
 	{
 		PanelContainer panel = new PanelContainer();
@@ -646,8 +711,22 @@ public partial class OverlayManager
 		panel.AddThemeStyleboxOverride("panel", normalStyle);
 		panel.MouseFilter = Control.MouseFilterEnum.Stop;
 		ConnectHoverSignals(panel,
-			() => { if (GodotObject.IsInstanceValid(panel)) panel.AddThemeStyleboxOverride("panel", hoverStyle); },
-			() => { if (GodotObject.IsInstanceValid(panel)) panel.AddThemeStyleboxOverride("panel", normalStyle); });
+			() =>
+			{
+				if (!GodotObject.IsInstanceValid(panel)) return;
+				panel.AddThemeStyleboxOverride("panel", hoverStyle);
+				var t = panel.CreateTween();
+				t?.TweenProperty(panel, "self_modulate", new Color(1.12f, 1.12f, 1.18f, 1f), 0.12f)
+					.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+			},
+			() =>
+			{
+				if (!GodotObject.IsInstanceValid(panel)) return;
+				panel.AddThemeStyleboxOverride("panel", normalStyle);
+				var t = panel.CreateTween();
+				t?.TweenProperty(panel, "self_modulate", Colors.White, 0.15f)
+					.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+			});
 		// S-tier pulsing golden glow
 		if (isSTier)
 		{

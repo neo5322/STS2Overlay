@@ -36,9 +36,14 @@ public class OverlaySettings
 	public bool ShowCoPickSynergy { get; set; } = true;
 	public bool ShowRunSummary { get; set; } = true;
 
+	// v0.15: Auto-fade — panel fades to idle opacity when mouse leaves
+	public bool AutoFadeEnabled { get; set; } = true;
+	public float IdleOpacity { get; set; } = 0.35f;
+	public float IdleDelaySeconds { get; set; } = 1.5f;
+
 	// Bump this when defaults change to force migration on old saved files
 	public int SettingsVersion { get; set; } = 0;
-	private const int CurrentVersion = 6;
+	private const int CurrentVersion = 7;
 
 	private static string GetSettingsPath()
 	{
@@ -81,6 +86,13 @@ public class OverlaySettings
 							settings.ShowFloorTierInfo = true;
 							settings.ShowCoPickSynergy = true;
 							settings.ShowRunSummary = true;
+						}
+						// v6 → v7: Auto-fade settings
+						if (settings.SettingsVersion < 7)
+						{
+							settings.AutoFadeEnabled = true;
+							settings.IdleOpacity = 0.35f;
+							settings.IdleDelaySeconds = 1.5f;
 						}
 						settings.SettingsVersion = CurrentVersion;
 						settings.Save();

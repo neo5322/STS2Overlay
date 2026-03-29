@@ -66,6 +66,12 @@ public partial class OverlayManager
 	private static readonly float[] OpacitySteps = { 1.0f, 0.75f, 0.50f };
 	private int _opacityIndex;
 
+	// Auto-fade: smooth idle/active opacity transitions
+	private float _fadeValue = 1.0f;
+	private float _fadeTarget = 1.0f;
+	private double _idleTimer;
+	private bool _mouseInPanel;
+
 	// Feature 4: Collapsible mode
 	private bool _collapsed;
 	// _archChipPanel removed — deck info lives in DECK BREAKDOWN section
@@ -415,14 +421,14 @@ public partial class OverlayManager
 		StyleBoxFlat sbPanel4 = _sbPanel;
 		contentMarginLeft = (_sbPanel.ContentMarginBottom = 20f);
 		sbPanel4.ContentMarginTop = contentMarginLeft;
-		_sbPanel.ShadowSize = 12;
-		_sbPanel.ShadowColor = new Color(0f, 0f, 0f, 0.5f);
+		_sbPanel.ShadowSize = 16;
+		_sbPanel.ShadowColor = new Color(0f, 0f, 0f, 0.6f);
 		_sbEntry = new StyleBoxFlat();
-		_sbEntry.BgColor = new Color(0.06f, 0.08f, 0.14f, 0.6f);
-		_sbEntry.CornerRadiusTopLeft = 8;
-		_sbEntry.CornerRadiusTopRight = 8;
-		_sbEntry.CornerRadiusBottomLeft = 8;
-		_sbEntry.CornerRadiusBottomRight = 8;
+		_sbEntry.BgColor = new Color(0.05f, 0.07f, 0.13f, 0.55f);
+		_sbEntry.CornerRadiusTopLeft = 10;
+		_sbEntry.CornerRadiusTopRight = 10;
+		_sbEntry.CornerRadiusBottomLeft = 10;
+		_sbEntry.CornerRadiusBottomRight = 10;
 		StyleBoxFlat sbEntry3 = _sbEntry;
 		contentMarginLeft = (_sbEntry.ContentMarginRight = 14f);
 		sbEntry3.ContentMarginLeft = contentMarginLeft;
@@ -432,9 +438,9 @@ public partial class OverlayManager
 		_sbHover = _sbEntry.Duplicate() as StyleBoxFlat;
 		if (_sbHover != null)
 		{
-			_sbHover.BgColor = ClrHover;
+			_sbHover.BgColor = new Color(0.08f, 0.10f, 0.18f, 0.75f);
 			_sbHover.BorderWidthLeft = 3;
-			_sbHover.BorderColor = ClrSub;
+			_sbHover.BorderColor = ClrAccent;
 		}
 		_sbBest = _sbEntry.Duplicate() as StyleBoxFlat;
 		if (_sbBest != null)
@@ -501,6 +507,18 @@ public partial class OverlayManager
 		_panel.GrowVertical = Control.GrowDirection.End;
 		_panel.AddThemeStyleboxOverride("panel", _sbPanel);
 		_panel.MouseFilter = Control.MouseFilterEnum.Stop;
+		// Auto-fade: activate on mouse enter, start idle timer on exit
+		_panel.Connect("mouse_entered", Callable.From(() =>
+		{
+			_mouseInPanel = true;
+			_idleTimer = 0;
+			_fadeTarget = 1.0f;
+		}));
+		_panel.Connect("mouse_exited", Callable.From(() =>
+		{
+			_mouseInPanel = false;
+			_idleTimer = 0;
+		}));
 		VBoxContainer vBoxContainer = new VBoxContainer();
 		vBoxContainer.AddThemeConstantOverride("separation", 10);
 		_panel.AddChild(vBoxContainer, forceReadableName: false, Node.InternalMode.Disabled);
@@ -518,13 +536,35 @@ public partial class OverlayManager
 		Label label = new Label();
 		label.Text = "QU'EST-CE SPIRE?";
 		ApplyFont(label, _fontBold);
-		label.AddThemeFontSizeOverride("font_size", 28);
+		label.AddThemeFontSizeOverride("font_size", 26);
 		label.AddThemeColorOverride("font_color", ClrHeader);
 		label.AddThemeConstantOverride("outline_size", 4);
 		label.AddThemeColorOverride("font_outline_color", ClrOutline);
+		label.AddThemeConstantOverride("shadow_offset_x", 2);
+		label.AddThemeConstantOverride("shadow_offset_y", 2);
+		label.AddThemeColorOverride("font_shadow_color", new Color(0f, 0f, 0f, 0.6f));
 		label.MouseFilter = Control.MouseFilterEnum.Ignore;
 		label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		titleRow.AddChild(label, forceReadableName: false, Node.InternalMode.Disabled);
+		// Version badge
+		PanelContainer vBadge = new PanelContainer();
+		StyleBoxFlat vbStyle = new StyleBoxFlat();
+		vbStyle.BgColor = new Color(ClrAccent, 0.15f);
+		vbStyle.CornerRadiusTopLeft = vbStyle.CornerRadiusTopRight = vbStyle.CornerRadiusBottomLeft = vbStyle.CornerRadiusBottomRight = 10;
+		vbStyle.ContentMarginLeft = vbStyle.ContentMarginRight = 8f;
+		vbStyle.ContentMarginTop = vbStyle.ContentMarginBottom = 2f;
+		vbStyle.BorderWidthTop = vbStyle.BorderWidthBottom = vbStyle.BorderWidthLeft = vbStyle.BorderWidthRight = 1;
+		vbStyle.BorderColor = new Color(ClrAccent, 0.3f);
+		vBadge.AddThemeStyleboxOverride("panel", vbStyle);
+		vBadge.MouseFilter = Control.MouseFilterEnum.Ignore;
+		Label vLabel = new Label();
+		vLabel.Text = $"v{Plugin.ModVersion}";
+		ApplyFont(vLabel, _fontBody);
+		vLabel.AddThemeFontSizeOverride("font_size", 11);
+		vLabel.AddThemeColorOverride("font_color", ClrSub);
+		vLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+		vBadge.AddChild(vLabel, forceReadableName: false, Node.InternalMode.Disabled);
+		titleRow.AddChild(vBadge, forceReadableName: false, Node.InternalMode.Disabled);
 		// (Settings button added at bottom of content in Rebuild)
 		// Compact/expand toggle
 		_compactToggle = new Label();
@@ -1202,11 +1242,20 @@ public partial class OverlayManager
 			_content.AddChild(_gearButton, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 		ResizePanelToContent();
-		// V2: Fade-in on screen change
+		// V2: Slide-in + fade on screen change
 		if (screenChanged && _content != null && GodotObject.IsInstanceValid(_content))
 		{
 			_content.Modulate = new Color(1, 1, 1, 0);
-			_content.CreateTween()?.TweenProperty(_content, "modulate", Colors.White, 0.2f);
+			_content.Position = new Vector2(8f, 0f);
+			var tween = _content.CreateTween();
+			if (tween != null)
+			{
+				tween.SetParallel(true);
+				tween.TweenProperty(_content, "modulate", Colors.White, 0.25f)
+					.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+				tween.TweenProperty(_content, "position", Vector2.Zero, 0.2f)
+					.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+			}
 		}
 		_previousScreen = _currentScreen;
 	}
@@ -1277,6 +1326,37 @@ public partial class OverlayManager
 		if (_sbSTier != null) _sbSTier.BgColor = new Color(0.831f, 0.714f, 0.357f, 0.1f * opacity);
 		if (_sbSTierHover != null) _sbSTierHover.BgColor = new Color(0.831f, 0.714f, 0.357f, 0.18f * opacity);
 		if (_sbChip != null) _sbChip.BgColor = new Color(0.02f, 0.03f, 0.07f, 0.7f * opacity);
+	}
+
+	/// <summary>
+	/// Called every frame from OverlayInputHandler._Process.
+	/// Smoothly transitions panel opacity between active (1.0) and idle states.
+	/// </summary>
+	public void ProcessAutoFade(double delta)
+	{
+		if (!_settings.AutoFadeEnabled || _panel == null || !GodotObject.IsInstanceValid(_panel))
+			return;
+
+		if (!_mouseInPanel)
+		{
+			_idleTimer += delta;
+			if (_idleTimer >= _settings.IdleDelaySeconds)
+				_fadeTarget = _settings.IdleOpacity;
+		}
+
+		float diff = _fadeTarget - _fadeValue;
+		if (Math.Abs(diff) > 0.005f)
+		{
+			_fadeValue += diff * (float)(5.0 * delta);
+			_panel.Modulate = new Color(1f, 1f, 1f, _fadeValue);
+			if (_hoverPreview != null && GodotObject.IsInstanceValid(_hoverPreview))
+				_hoverPreview.Modulate = new Color(1f, 1f, 1f, _fadeValue);
+		}
+		else if (Math.Abs(diff) > 0.001f)
+		{
+			_fadeValue = _fadeTarget;
+			_panel.Modulate = new Color(1f, 1f, 1f, _fadeValue);
+		}
 	}
 
 	// === Feature 4: Collapsible mode ===
