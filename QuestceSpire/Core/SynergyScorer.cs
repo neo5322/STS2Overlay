@@ -380,7 +380,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 		deckSizeAdjust = ApplyDeckSizeAdjust(deckAnalysis, score, antiReasons);
 		score += deckSizeAdjust;
 
-		float upgradeAdjust = ApplyCfg.UpgradeBonus(card.Upgraded, ref score, synReasons);
+		float upgradeAdjust = ApplyUpgradeBonus(card.Upgraded, ref score, synReasons);
 
 		// 4. Clamp and build result
 		score = Math.Clamp(score, 0f, 6.0f);
@@ -632,7 +632,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 	}
 
 	/// <summary>Upgrade bonus for upgraded cards.</summary>
-	private float ApplyCfg.UpgradeBonus(bool upgraded, ref float score, List<string> synReasons)
+	private float ApplyUpgradeBonus(bool upgraded, ref float score, List<string> synReasons)
 	{
 		if (!upgraded) return 0f;
 		score += Cfg.UpgradeBonus;
