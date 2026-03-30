@@ -56,6 +56,20 @@ public static partial class GamePatches
 				Plugin.Log($"Overlay creation failed: {value}");
 			}
 		}
+
+		if (Plugin.Coordinator == null)
+		{
+			try
+			{
+				var settings = OverlaySettings.Load();
+				Plugin.Coordinator = new OverlayCoordinator(settings);
+				Plugin.Log("Coordinator created.");
+			}
+			catch (Exception value)
+			{
+				Plugin.Log($"Coordinator creation failed: {value}");
+			}
+		}
 	}
 
 	public static void OnRunLaunched(RunManager __instance, RunState __result)

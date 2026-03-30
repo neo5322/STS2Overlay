@@ -402,6 +402,9 @@ public static partial class GamePatches
 			{
 				DeckAnalysis deckAnalysis = Plugin.DeckAnalyzer.Analyze(gameState.Character, gameState.DeckCards, Plugin.TierEngine, gameState.CurrentRelics);
 				Plugin.RunTracker?.RecordArchetypeSnapshot(gameState.Floor, deckAnalysis);
+				// New coordinator path (MapInjector)
+				Plugin.Coordinator?.ShowMapAdvice(__result, deckAnalysis, gameState.CurrentHP, gameState.MaxHP, gameState.Gold, gameState.ActNumber, gameState.Floor);
+				// Legacy path (will be removed once all screens are migrated)
 				Plugin.Overlay?.ShowMapAdvice(deckAnalysis, gameState.CurrentHP, gameState.MaxHP, gameState.Gold, gameState.ActNumber, gameState.Floor, gameNode: __result);
 			}
 		}

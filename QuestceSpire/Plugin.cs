@@ -107,6 +107,7 @@ public static class Plugin
 	public static int CompatibilityIssues { get; private set; }
 
 	public static OverlayManager Overlay { get; set; }
+	public static OverlayCoordinator Coordinator { get; set; }
 
 	public static void Init()
 	{
