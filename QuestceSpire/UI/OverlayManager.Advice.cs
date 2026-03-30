@@ -393,8 +393,9 @@ public partial class OverlayManager
 		return false;
 	}
 
-	public void ShowCardAdvice(List<ScoredCard> cards, DeckAnalysis deckAnalysis = null, string character = null, string screenLabel = "CARD REWARD")
+	public void ShowCardAdvice(List<ScoredCard> cards, DeckAnalysis deckAnalysis = null, string character = null, string screenLabel = "CARD REWARD", Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentCards = cards;
 		_currentRelics = null;
 		_currentDeckAnalysis = deckAnalysis;
@@ -413,8 +414,9 @@ public partial class OverlayManager
 		Rebuild();
 	}
 
-	public void ShowRelicAdvice(List<ScoredRelic> relics, DeckAnalysis deckAnalysis = null, string character = null)
+	public void ShowRelicAdvice(List<ScoredRelic> relics, DeckAnalysis deckAnalysis = null, string character = null, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentRelics = relics;
 		_currentCards = null;
 		_currentDeckAnalysis = deckAnalysis;
@@ -425,8 +427,9 @@ public partial class OverlayManager
 		Rebuild();
 	}
 
-	public void ShowCardRemovalAdvice(List<ScoredCard> removalCandidates, DeckAnalysis deckAnalysis = null, string character = null)
+	public void ShowCardRemovalAdvice(List<ScoredCard> removalCandidates, DeckAnalysis deckAnalysis = null, string character = null, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentCards = removalCandidates?.Take(5).ToList();
 		_currentRelics = null;
 		_currentDeckAnalysis = deckAnalysis;
@@ -437,8 +440,9 @@ public partial class OverlayManager
 		Rebuild();
 	}
 
-	public void ShowRestSiteAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int actNumber, int floor, GameState gameState = null)
+	public void ShowRestSiteAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int actNumber, int floor, GameState gameState = null, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentCards = null;
 		_currentRelics = null;
 		_currentDeckAnalysis = deckAnalysis;
@@ -451,8 +455,9 @@ public partial class OverlayManager
 		Rebuild();
 	}
 
-	public void ShowUpgradeAdvice(DeckAnalysis deckAnalysis, GameState gameState, string character)
+	public void ShowUpgradeAdvice(DeckAnalysis deckAnalysis, GameState gameState, string character, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentCards = null;
 		_currentRelics = null;
 		_currentDeckAnalysis = deckAnalysis;
@@ -464,8 +469,9 @@ public partial class OverlayManager
 		Rebuild();
 	}
 
-	public void ShowCombatAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int actNumber, int floor, GameState gameState = null, List<string> enemyIds = null)
+	public void ShowCombatAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int actNumber, int floor, GameState gameState = null, List<string> enemyIds = null, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentCards = null;
 		_currentRelics = null;
 		_currentDeckAnalysis = deckAnalysis;
@@ -539,8 +545,9 @@ public partial class OverlayManager
 		RebuildEnemyDetailsSection();
 	}
 
-	public void ShowEventAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int gold, int actNumber, int floor, string eventId = null)
+	public void ShowEventAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int gold, int actNumber, int floor, string eventId = null, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentCards = null;
 		_currentRelics = null;
 		_currentDeckAnalysis = deckAnalysis;
@@ -598,8 +605,9 @@ public partial class OverlayManager
 		Rebuild();
 	}
 
-	public void ShowMapAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int gold, int actNumber, int floor)
+	public void ShowMapAdvice(DeckAnalysis deckAnalysis, int currentHP, int maxHP, int gold, int actNumber, int floor, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentFloor = floor;
 		_currentGameState = new GameState { CurrentHP = currentHP, MaxHP = maxHP, Gold = gold, ActNumber = actNumber, Floor = floor };
 		_currentCards = null;
@@ -723,8 +731,9 @@ public partial class OverlayManager
 			RebuildEnemyDetailsSection();
 	}
 
-	public void ShowShopAdvice(List<ScoredCard> cards, List<ScoredRelic> relics, DeckAnalysis deckAnalysis = null, string character = null)
+	public void ShowShopAdvice(List<ScoredCard> cards, List<ScoredRelic> relics, DeckAnalysis deckAnalysis = null, string character = null, Node gameNode = null)
 	{
+		if (gameNode != null) InjectIntoGameNode(gameNode);
 		_currentCards = cards;
 		_currentRelics = relics;
 		_currentDeckAnalysis = deckAnalysis;

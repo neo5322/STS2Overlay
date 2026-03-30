@@ -301,7 +301,7 @@ public partial class OverlayManager
 			menuVBox.AddChild(welcomeLabel, forceReadableName: false, Node.InternalMode.Disabled);
 		}
 
-		_layer.AddChild(_settingsMenu, forceReadableName: false, Node.InternalMode.Disabled);
+		_utilityLayer.AddChild(_settingsMenu, forceReadableName: false, Node.InternalMode.Disabled);
 	}
 
 	private void AddSettingsToggle(VBoxContainer parent, string label, bool currentValue, Action onToggle)

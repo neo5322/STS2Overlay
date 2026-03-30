@@ -676,10 +676,12 @@ public partial class OverlayManager
 
 	// === A2: Post-run controversial picks summary ===
 
-	public void ShowRunSummary(RunOutcome outcome, int finalFloor, int finalAct)
+	public void ShowRunSummary(RunOutcome outcome, int finalFloor, int finalAct, Node gameNode = null)
 	{
 		try
 		{
+			// Run summary has no specific game screen — use utility layer
+			InjectIntoGameNode(gameNode);
 			var events = Plugin.RunTracker?.GetCurrentRunEvents();
 			if (events == null || events.Count == 0)
 			{

@@ -11,7 +11,7 @@ namespace QuestceSpire.UI;
 
 public partial class OverlayManager
 {
-	private CanvasLayer _layer;
+	private CanvasLayer _utilityLayer;
 
 	private PanelContainer _panel;
 
@@ -186,7 +186,10 @@ public partial class OverlayManager
 		LoadGameIcons();
 		InitializeStyles();
 		ApplyOpacity(_panelOpacity);
-		BuildOverlay();
+		BuildUtilityLayer();
+		BuildAdvicePanel();
+		// Initially attach panel to utility layer (IDLE state, no game screen yet)
+		InjectIntoGameNode(null);
 	}
 
 	private void LoadGameFonts()
@@ -296,7 +299,7 @@ public partial class OverlayManager
 
 	private bool IsOverlayValid()
 	{
-		if (_layer != null && GodotObject.IsInstanceValid(_layer) && _panel != null && GodotObject.IsInstanceValid(_panel) && _content != null)
+		if (_utilityLayer != null && GodotObject.IsInstanceValid(_utilityLayer) && _panel != null && GodotObject.IsInstanceValid(_panel) && _content != null)
 		{
 			return GodotObject.IsInstanceValid(_content);
 		}
@@ -347,38 +350,41 @@ public partial class OverlayManager
 
 	private bool EnsureOverlay()
 	{
-		if (IsOverlayValid())
+		// Check utility layer
+		if (_utilityLayer == null || !GodotObject.IsInstanceValid(_utilityLayer))
 		{
-			return true;
+			try
+			{
+				DisconnectAllHoverSignals();
+				if (_hoverPreview != null && GodotObject.IsInstanceValid(_hoverPreview))
+				{
+					SafeDisconnectSignals(_hoverPreview);
+					_hoverPreview.GetParent()?.RemoveChild(_hoverPreview);
+					_hoverPreview.QueueFree();
+				}
+			}
+			catch (Exception ex) { Plugin.Log($"EnsureOverlay utility cleanup error: {ex.Message}"); }
+			_utilityLayer = null;
+			_hoverPreview = null;
+			_hoverPreviewTex = null;
+			BuildUtilityLayer();
 		}
-		// Remove old nodes from scene tree before rebuilding
-		try
+		// Check advice panel (may have been freed when a game node was destroyed)
+		if (_panel == null || !GodotObject.IsInstanceValid(_panel) || _content == null || !GodotObject.IsInstanceValid(_content))
 		{
-			DisconnectAllHoverSignals();
-			if (_layer != null && GodotObject.IsInstanceValid(_layer))
-			{
-				_layer.GetParent()?.RemoveChild(_layer);
-				_layer.QueueFree();
-			}
-			if (_hoverPreview != null && GodotObject.IsInstanceValid(_hoverPreview))
-			{
-				SafeDisconnectSignals(_hoverPreview);
-				_hoverPreview.GetParent()?.RemoveChild(_hoverPreview);
-				_hoverPreview.QueueFree();
-			}
+			try { DisconnectAllHoverSignals(); }
+			catch (Exception ex) { Plugin.Log($"EnsureOverlay panel cleanup error: {ex.Message}"); }
+			_panel = null;
+			_content = null;
+			_screenLabel = null;
+			_deckVizContainer = null;
+			_titleSep = null;
+			_winRateLabel = null;
+			InitializeStyles();
+			BuildAdvicePanel();
+			// Re-inject into utility layer as fallback
+			InjectIntoGameNode(null);
 		}
-		catch (Exception ex) { Plugin.Log($"EnsureOverlay cleanup error: {ex.Message}"); }
-		_layer = null;
-		_panel = null;
-		_content = null;
-		_screenLabel = null;
-		_deckVizContainer = null;
-		_titleSep = null;
-		_winRateLabel = null;
-		_hoverPreview = null;
-		_hoverPreviewTex = null;
-		InitializeStyles();
-		BuildOverlay();
 		return IsOverlayValid();
 	}
 
@@ -394,17 +400,70 @@ public partial class OverlayManager
 		_sbChip = OverlayStyles.CreateChipStyle();
 	}
 
-	private void BuildOverlay()
+	/// <summary>
+	/// Creates the utility CanvasLayer for global elements: input handler, settings menu, hover preview.
+	/// This layer persists for the entire session.
+	/// </summary>
+	private void BuildUtilityLayer()
 	{
 		SceneTree sceneTree = Engine.GetMainLoop() as SceneTree;
 		if (sceneTree?.Root == null)
 		{
-			Plugin.Log("SceneTree not ready — overlay deferred.");
+			Plugin.Log("SceneTree not ready — utility layer deferred.");
 			return;
 		}
-		_layer = new CanvasLayer();
-		_layer.Layer = 100;
+		_utilityLayer = new CanvasLayer();
+		_utilityLayer.Layer = 100;
+
+		OverlayInputHandler inputHandler = new OverlayInputHandler(this);
+		_utilityLayer.AddChild(inputHandler, forceReadableName: false, Node.InternalMode.Disabled);
+
+		BuildSettingsMenu();
+
+		// V4: Card art hover preview
+		_hoverPreview = new PanelContainer();
+		_hoverPreview.Visible = false;
+		_hoverPreview.ZIndex = 101;
+		_hoverPreview.ClipContents = true;
+		_hoverPreview.MouseFilter = Control.MouseFilterEnum.Ignore;
+		StyleBoxFlat hpStyle = new StyleBoxFlat();
+		hpStyle.BgColor = ClrBg;
+		hpStyle.BorderWidthTop = 2;
+		hpStyle.BorderWidthBottom = 2;
+		hpStyle.BorderWidthLeft = 2;
+		hpStyle.BorderWidthRight = 2;
+		hpStyle.BorderColor = ClrBorder;
+		hpStyle.CornerRadiusTopLeft = 8;
+		hpStyle.CornerRadiusTopRight = 8;
+		hpStyle.CornerRadiusBottomLeft = 8;
+		hpStyle.CornerRadiusBottomRight = 8;
+		hpStyle.ShadowSize = 8;
+		hpStyle.ShadowColor = OverlayTheme.Shadow;
+		hpStyle.ContentMarginTop = 4f;
+		hpStyle.ContentMarginBottom = 4f;
+		hpStyle.ContentMarginLeft = 4f;
+		hpStyle.ContentMarginRight = 4f;
+		_hoverPreview.AddThemeStyleboxOverride("panel", hpStyle);
+		_hoverPreviewTex = new TextureRect();
+		_hoverPreviewTex.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+		_hoverPreviewTex.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
+		_hoverPreviewTex.CustomMinimumSize = new Vector2(200f, 200f);
+		_hoverPreview.AddChild(_hoverPreviewTex, forceReadableName: false, Node.InternalMode.Disabled);
+		_utilityLayer.AddChild(_hoverPreview, forceReadableName: false, Node.InternalMode.Disabled);
+
+		sceneTree.Root.CallDeferred("add_child", _utilityLayer);
+		Plugin.Log("Utility layer built and attached to scene tree.");
+	}
+
+	/// <summary>
+	/// Creates the advice panel (PanelContainer) with title bar and content area.
+	/// The panel uses TopLevel=true so it renders at viewport coordinates regardless of parent.
+	/// It is NOT added to any parent here — call InjectIntoGameNode() to attach it.
+	/// </summary>
+	private void BuildAdvicePanel()
+	{
 		_panel = new PanelContainer();
+		_panel.TopLevel = true; // Render at viewport coords, independent of parent transform
 		_panel.AnchorLeft = 1f;
 		_panel.AnchorRight = 1f;
 		_panel.AnchorTop = 0f;
@@ -525,10 +584,7 @@ public partial class OverlayManager
 		_content.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		_content.AddThemeConstantOverride("separation", OverlayTheme.SpaceMD); // 8px grid-aligned
 		vBoxContainer.AddChild(_content, forceReadableName: false, Node.InternalMode.Disabled);
-		_layer.AddChild(_panel, forceReadableName: false, Node.InternalMode.Disabled);
-		OverlayInputHandler node = new OverlayInputHandler(this);
-		_layer.AddChild(node, forceReadableName: false, Node.InternalMode.Disabled);
-		BuildSettingsMenu();
+
 		_panel.Visible = _visible;
 		// Apply collapsed state
 		if (_collapsed)
@@ -536,41 +592,40 @@ public partial class OverlayManager
 			_content.Visible = false;
 			_deckVizContainer.Visible = false;
 		}
-		// V4: Card art hover preview
-		_hoverPreview = new PanelContainer();
-		_hoverPreview.Visible = false;
-		_hoverPreview.ZIndex = 101;
-		_hoverPreview.ClipContents = true;
-		_hoverPreview.MouseFilter = Control.MouseFilterEnum.Ignore;
-		StyleBoxFlat hpStyle = new StyleBoxFlat();
-		hpStyle.BgColor = ClrBg;
-		hpStyle.BorderWidthTop = 2;
-		hpStyle.BorderWidthBottom = 2;
-		hpStyle.BorderWidthLeft = 2;
-		hpStyle.BorderWidthRight = 2;
-		hpStyle.BorderColor = ClrBorder;
-		hpStyle.CornerRadiusTopLeft = 8;
-		hpStyle.CornerRadiusTopRight = 8;
-		hpStyle.CornerRadiusBottomLeft = 8;
-		hpStyle.CornerRadiusBottomRight = 8;
-		hpStyle.ShadowSize = 8;
-		hpStyle.ShadowColor = OverlayTheme.Shadow;
-		hpStyle.ContentMarginTop = 4f;
-		hpStyle.ContentMarginBottom = 4f;
-		hpStyle.ContentMarginLeft = 4f;
-		hpStyle.ContentMarginRight = 4f;
-		_hoverPreview.AddThemeStyleboxOverride("panel", hpStyle);
-		_hoverPreviewTex = new TextureRect();
-		_hoverPreviewTex.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
-		_hoverPreviewTex.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered;
-		_hoverPreviewTex.CustomMinimumSize = new Vector2(200f, 200f);
-		_hoverPreview.AddChild(_hoverPreviewTex, forceReadableName: false, Node.InternalMode.Disabled);
-		_layer.AddChild(_hoverPreview, forceReadableName: false, Node.InternalMode.Disabled);
 
 		_layoutTicksRemaining = 5;
+		Plugin.Log("Advice panel built (not yet injected).");
+	}
 
-		sceneTree.Root.CallDeferred("add_child", _layer);
-		Plugin.Log("Overlay built and attached to scene tree.");
+	/// <summary>
+	/// Injects the advice panel into the specified game node as a direct child.
+	/// The panel uses TopLevel=true so it renders at viewport coordinates.
+	/// When the game node is freed (screen transition), the panel is freed with it.
+	/// Pass null to attach to the utility layer (fallback for IDLE/run summary).
+	/// </summary>
+	public void InjectIntoGameNode(Node gameNode)
+	{
+		if (_panel == null || !GodotObject.IsInstanceValid(_panel))
+		{
+			InitializeStyles();
+			BuildAdvicePanel();
+		}
+		if (_panel == null) return;
+
+		Node targetParent = (gameNode != null && GodotObject.IsInstanceValid(gameNode))
+			? gameNode
+			: (Node)_utilityLayer;
+
+		if (targetParent == null) return;
+
+		var currentParent = _panel.GetParent();
+		if (currentParent == targetParent) return; // already injected here
+
+		if (currentParent != null && GodotObject.IsInstanceValid(currentParent))
+			currentParent.RemoveChild(_panel);
+
+		targetParent.CallDeferred("add_child", _panel);
+		_layoutTicksRemaining = 5;
 	}
 
 	private bool IsClickOnControl(Vector2 globalPos, Control control)
@@ -625,14 +680,14 @@ public partial class OverlayManager
 
 	/// <summary>
 	/// Called periodically (~1s) by OverlayInputHandler._Process.
-	/// Detects when game screen has changed without a patch firing and clears stale data.
+	/// With direct injection, the panel is freed when the game node is destroyed.
+	/// This method handles: badge lifecycle, shop refresh, event card detection,
+	/// and detecting when the panel was freed (game node destroyed).
 	/// </summary>
 	public void CheckForStaleScreen()
 	{
 		if (_lastUpdateTick == 0) return;
-		// Badge lifecycle: badges live on our CanvasLayer, not in the game tree.
-		// Clear them when screen changes away from card reward.
-		// Update positions when still on card reward (targets may have moved).
+		// Badge lifecycle: clear when screen changes away from card reward
 		try
 		{
 			if (_inGameBadges.Count > 0)
@@ -643,7 +698,6 @@ public partial class OverlayManager
 				}
 				else
 				{
-					// Still on card reward — update positions and prune dead targets
 					UpdateInGameBadgePositions();
 				}
 			}
@@ -659,43 +713,22 @@ public partial class OverlayManager
 		{
 			try { CheckForEventCardOffering(); } catch (Exception ex) { Plugin.Log($"CheckForEventCardOffering error: {ex.Message}"); }
 		}
-		ulong elapsed = Time.GetTicksMsec() - _lastUpdateTick;
-		// If advice is showing for 8+ seconds, check if the game screen is still valid
-		if (elapsed > 8000 && _currentScreen != null)
+		// Direct injection: if the panel was freed (game node destroyed), reset state.
+		// The panel will be rebuilt on the next Show* call.
+		if (_panel == null || !GodotObject.IsInstanceValid(_panel))
 		{
-			try
+			if (_currentScreen != "IDLE" && _currentScreen != "MAP / COMBAT")
 			{
-				SceneTree tree = Engine.GetMainLoop() as SceneTree;
-				if (tree?.Root == null) return;
-				bool hasCardScreen = HasNodeOfType(tree.Root, "NCardRewardSelectionScreen", 4);
-				bool hasRelicScreen = HasNodeOfType(tree.Root, "NChooseARelicSelection", 4);
-				bool hasShopScreen = HasNodeOfType(tree.Root, "NMerchantInventory", 4);
-				bool hasRestSite = HasNodeOfType(tree.Root, "NRestSiteRoom", 4);
-				bool hasCombat = HasNodeOfType(tree.Root, "NCombatRoom", 4);
-				bool hasEvent = HasNodeOfType(tree.Root, "NEventRoom", 4);
-				bool isEventCardOffer = _currentScreen == "EVENT CARD OFFER";
-				bool isCardAdvice = _currentScreen == "CARD REWARD" || _currentScreen == "CARD REMOVAL" || _currentScreen == "CARD UPGRADE" || isEventCardOffer;
-				bool isRelicAdvice = _currentScreen == "RELIC REWARD";
-				bool isShopAdvice = _currentScreen == "MERCHANT SHOP";
-				bool isRestAdvice = _currentScreen == "REST SITE";
-				bool isCombatAdvice = _currentScreen == "COMBAT";
-				bool isEventAdvice = _currentScreen == "EVENT";
-
-				bool screenGone = false;
-				if (isCardAdvice && !hasCardScreen) screenGone = true;
-				if (isRelicAdvice && !hasRelicScreen) screenGone = true;
-				if (isShopAdvice && !hasShopScreen) screenGone = true;
-				if (isRestAdvice && !hasRestSite) screenGone = true;
-				if (isCombatAdvice && !hasCombat) screenGone = true;
-				if (isEventAdvice && !hasEvent) screenGone = true;
-
-				if (screenGone)
-				{
-					Plugin.Log($"Stale screen detected: {_currentScreen} no longer active — clearing overlay");
-					Clear();
-				}
+				Plugin.Log($"Panel freed (game node destroyed) — screen was {_currentScreen}");
+				_currentScreen = "MAP / COMBAT";
+				_currentCards = null;
+				_currentRelics = null;
+				_currentDeckAnalysis = null;
+				_mapAdvice = null;
+				_lastCombatSnapshot = null;
+				_lastCombatHash = 0;
+				_lastUpdateTick = 0;
 			}
-			catch (Exception ex) { Plugin.Log($"CheckForStaleScreen staleness check error: {ex.Message}"); }
 		}
 	}
 
@@ -760,6 +793,8 @@ public partial class OverlayManager
 		MarkUpdated();
 		if (_hoverPreview != null && GodotObject.IsInstanceValid(_hoverPreview))
 			_hoverPreview.Visible = false;
+		// Move panel back to utility layer (detach from game node)
+		InjectIntoGameNode(null);
 		Rebuild();
 	}
 
