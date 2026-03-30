@@ -226,6 +226,21 @@ public abstract class BaseScreenInjector
 		vBadge.AddChild(vLabel, forceReadableName: false, Node.InternalMode.Disabled);
 		titleRow.AddChild(vBadge, forceReadableName: false, Node.InternalMode.Disabled);
 
+		// Settings gear button
+		var gearBtn = new Label();
+		gearBtn.Text = "\u2699";
+		Res.ApplyFont(gearBtn, Res.FontBold);
+		gearBtn.AddThemeFontSizeOverride("font_size", OverlayTheme.FontH2);
+		gearBtn.AddThemeColorOverride("font_color", SharedResources.ClrSub);
+		gearBtn.MouseFilter = Control.MouseFilterEnum.Stop;
+		gearBtn.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
+		gearBtn.Connect("gui_input", Callable.From((InputEvent ev) =>
+		{
+			if (ev is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
+				Plugin.Coordinator?.ToggleSettings();
+		}));
+		titleRow.AddChild(gearBtn, forceReadableName: false, Node.InternalMode.Disabled);
+
 		// Collapse toggle
 		_compactToggle = new Label();
 		_compactToggle.Text = _collapsed ? "\u25BC" : "\u25B2";

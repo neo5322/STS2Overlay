@@ -25,7 +25,11 @@ public class BadgeManager
 		_showBadges = showBadges;
 	}
 
-	public void SetShowBadges(bool show) => _showBadges = show;
+	public void SetShowBadges(bool show)
+	{
+		_showBadges = show;
+		if (!show) CleanupAllBadges();
+	}
 
 	public void InjectCardGrades(Node screenNode, List<ScoredCard> scoredCards, bool force = false)
 	{

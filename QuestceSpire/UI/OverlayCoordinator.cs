@@ -200,6 +200,8 @@ public class OverlayCoordinator
 			Key pk = key.PhysicalKeycode;
 			if (k == Key.F7 || pk == Key.F7)
 				ToggleVisible();
+			else if (k == Key.F10 || pk == Key.F10)
+				ToggleSettings();
 			else if (key.AltPressed && (k == Key.H || pk == Key.H))
 				ToggleVisible();
 			else if (!key.AltPressed && !key.CtrlPressed && !key.ShiftPressed
