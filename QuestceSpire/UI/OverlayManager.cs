@@ -935,6 +935,30 @@ public partial class OverlayManager
 			updateLbl.AddThemeColorOverride("font_color", ClrExpensive);
 			_content.AddChild(updateLbl, forceReadableName: false, Node.InternalMode.Disabled);
 		}
+		// Stale tier data warning
+		if (Plugin.TierEngine?.IsTierDataStale == true)
+		{
+			var warnPanel = new PanelContainer();
+			var warnStyle = new StyleBoxFlat();
+			warnStyle.BgColor = new Color(OverlayTheme.Warning, 0.15f);
+			OverlayStyles.SetAllCornerRadius(warnStyle, OverlayTheme.RadiusSM);
+			warnStyle.BorderWidthLeft = 3;
+			warnStyle.BorderColor = OverlayTheme.Warning;
+			warnStyle.ContentMarginLeft = warnStyle.ContentMarginRight = 10f;
+			warnStyle.ContentMarginTop = warnStyle.ContentMarginBottom = 6f;
+			warnPanel.AddThemeStyleboxOverride("panel", warnStyle);
+
+			var warnLabel = new Label();
+			string tierVer = Plugin.TierEngine.TierDataVersion ?? "?";
+			string gameVer = Plugin.TierEngine.GameVersion ?? "?";
+			warnLabel.Text = $"⚠ 티어 데이터({tierVer})가 게임 버전({gameVer})과 다릅니다";
+			ApplyFont(warnLabel, _fontBody);
+			warnLabel.AddThemeColorOverride("font_color", OverlayTheme.Warning);
+			warnLabel.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
+			warnLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+			warnPanel.AddChild(warnLabel, forceReadableName: false, Node.InternalMode.Disabled);
+			_content.AddChild(warnPanel, forceReadableName: false, Node.InternalMode.Disabled);
+		}
 		bool hasCards = _currentCards != null && _currentCards.Count > 0;
 		bool hasRelics = _currentRelics != null && _currentRelics.Count > 0;
 		bool isRemoval = _currentScreen == "CARD REMOVAL";
