@@ -190,6 +190,12 @@ public class OverlayCoordinator
 
 	public bool IsActive => _activeInjector != null && _activeInjector.IsValid();
 	public CanvasLayer UtilityLayer => _utilityLayer;
+
+	/// <summary>Current screen name from active injector (e.g. "CARD REWARD", "COMBAT").</summary>
+	public string ActiveScreenName => _activeInjector?.ScreenName;
+
+	/// <summary>Shared settings instance.</summary>
+	public OverlaySettings Settings => _settings;
 }
 
 /// <summary>
@@ -198,72 +204,20 @@ public class OverlayCoordinator
 internal class OverlayInputHandler : Node
 {
 	private readonly OverlayCoordinator _coordinator;
-	private readonly OverlayManager _legacyOwner;
 
-	/// <summary>Constructor for new coordinator mode.</summary>
 	public OverlayInputHandler(OverlayCoordinator coordinator)
 	{
 		_coordinator = coordinator;
 		ProcessMode = ProcessModeEnum.Always;
 	}
 
-	/// <summary>Constructor for legacy OverlayManager mode.</summary>
-	public OverlayInputHandler(OverlayManager owner)
-	{
-		_legacyOwner = owner;
-		ProcessMode = ProcessModeEnum.Always;
-	}
-
-	private double _checkTimer;
-	private double _combatTimer;
-
 	public override void _UnhandledKeyInput(InputEvent ev)
 	{
-		if (ev is InputEventKey { Pressed: not false, Echo: false } key)
-		{
-			if (key.Keycode == Key.F10 || key.PhysicalKeycode == Key.F10)
-			{
-				_legacyOwner?.ToggleDebugOverlay();
-				return;
-			}
-		}
-		if (_coordinator != null)
-			_coordinator.HandleInput(ev);
-		else
-			_legacyOwner?.HandleInput(ev);
-	}
-
-	public override void _Input(InputEvent ev)
-	{
-		if (ev is InputEventMouseButton || (ev is InputEventKey key && key.Keycode == Key.Escape))
-			_legacyOwner?.HandleSettingsClose(ev);
+		_coordinator.HandleInput(ev);
 	}
 
 	public override void _Process(double delta)
 	{
-		if (_coordinator != null)
-		{
-			_coordinator.ProcessFrame(delta);
-			return;
-		}
-
-		// Legacy mode
-		if (_legacyOwner == null) return;
-		_legacyOwner.StabilizeLayout();
-		_legacyOwner.ProcessAutoFade(delta);
-
-		_checkTimer += delta;
-		if (_checkTimer >= 1.0)
-		{
-			_checkTimer = 0;
-			_legacyOwner.CheckForStaleScreen();
-		}
-
-		_combatTimer += delta;
-		if (_combatTimer >= 0.5)
-		{
-			_combatTimer = 0;
-			_legacyOwner.UpdateCombatPiles();
-		}
+		_coordinator.ProcessFrame(delta);
 	}
 }

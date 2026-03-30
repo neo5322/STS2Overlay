@@ -24,7 +24,7 @@ public partial class OverlayManager
 			Plugin.Log("InjectCardGrades skipped — not a genuine card reward");
 			return;
 		}
-		if (_currentScreen != "CARD REWARD" || IsInsideMerchant(screenNode))
+		if (IsInsideMerchant(screenNode))
 			return;
 		// Card rewards have 3-4 cards; draw/discard pile viewers have many more
 		if (scoredCards.Count > 5)
@@ -51,7 +51,7 @@ public partial class OverlayManager
 		// Stale deferred call — screen changed since injection was queued
 		if (epoch != _badgeEpoch)
 			return;
-		if (!_showInGameBadges || _currentScreen != "CARD REWARD" || !GamePatches.IsGenuineCardReward)
+		if (!_showInGameBadges || !GamePatches.IsGenuineCardReward)
 			return;
 		// No need to scan game tree for overlay screens — badges are on our layer
 		// and will be cleaned up by ClearInGameBadges when screen changes.

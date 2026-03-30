@@ -415,9 +415,6 @@ public partial class OverlayManager
 		_utilityLayer = new CanvasLayer();
 		_utilityLayer.Layer = 100;
 
-		OverlayInputHandler inputHandler = new OverlayInputHandler(this);
-		_utilityLayer.AddChild(inputHandler, forceReadableName: false, Node.InternalMode.Disabled);
-
 		BuildSettingsMenu();
 
 		// V4: Card art hover preview

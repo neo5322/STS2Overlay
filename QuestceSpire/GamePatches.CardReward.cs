@@ -64,7 +64,7 @@ public static partial class GamePatches
 				Plugin.Log($"ShowScreen with {options.Count} cards — multi-pick card selection detected.");
 			}
 			// Skip screens that have their own handlers and reuse NCardRewardSelectionScreen
-			string curScreen = Plugin.Overlay?.CurrentScreen;
+			string curScreen = Plugin.Coordinator?.ActiveScreenName;
 			if (curScreen == "CARD REMOVAL" || curScreen == "CARD UPGRADE" ||
 			    curScreen == "MERCHANT SHOP" || curScreen == "EVENT CARD OFFER" ||
 			    curScreen == "EVENT" || curScreen == "REST SITE")
@@ -99,7 +99,7 @@ public static partial class GamePatches
 		{
 			if (options != null && options.Count > 15)
 				return;
-			string curScreen2 = Plugin.Overlay?.CurrentScreen;
+			string curScreen2 = Plugin.Coordinator?.ActiveScreenName;
 			if (curScreen2 == "CARD REMOVAL" || curScreen2 == "CARD UPGRADE" ||
 			    curScreen2 == "MERCHANT SHOP" || curScreen2 == "EVENT CARD OFFER" ||
 			    curScreen2 == "EVENT" || curScreen2 == "REST SITE")
@@ -205,7 +205,6 @@ public static partial class GamePatches
 		Plugin.RunTracker?.RecordArchetypeSnapshot(gameState.Floor, deckAnalysis);
 		List<ScoredCard> cards = Plugin.SynergyScorer.ScoreOfferings(gameState.OfferedCards, deckAnalysis, gameState.Character, gameState.ActNumber, gameState.Floor, Plugin.TierEngine, Plugin.AdaptiveScorer);
 		Plugin.Coordinator?.ShowCardAdvice(screen, cards, deckAnalysis, gameState.Character);
-		Plugin.Overlay?.ShowCardAdvice(cards, deckAnalysis, gameState.Character, gameNode: screen);
 		Plugin.Overlay?.InjectCardGrades(screen, cards);
 		// Dedup: only record if this is a new offering (prevents ShowScreen+RefreshOptions double-recording)
 		var offeredIds = gameState.OfferedCards.ConvertAll((CardInfo c) => c.Id);

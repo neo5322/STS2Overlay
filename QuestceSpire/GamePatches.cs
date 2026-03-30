@@ -119,7 +119,7 @@ public static partial class GamePatches
 				Plugin.CloudSync.ApplyCachedStats();
 			else
 				Plugin.LocalStats?.RecomputeAll();
-			if (Plugin.Overlay?.Settings?.CloudSyncEnabled ?? false)
+			if (Plugin.Coordinator?.Settings?.CloudSyncEnabled ?? false)
 				Task.Run(() => Plugin.CloudSync?.UploadPendingRuns());
 			Plugin.Log($"Run ended: {runOutcome} on floor {num} (act {num2})");
 		}
