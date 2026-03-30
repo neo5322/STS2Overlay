@@ -44,19 +44,6 @@ public static partial class GamePatches
 
 	private static void EnsureOverlay()
 	{
-		if (Plugin.Overlay == null)
-		{
-			try
-			{
-				Plugin.Overlay = new OverlayManager();
-				Plugin.Log("Overlay created.");
-			}
-			catch (Exception value)
-			{
-				Plugin.Log($"Overlay creation failed: {value}");
-			}
-		}
-
 		if (Plugin.Coordinator == null)
 		{
 			try
@@ -68,6 +55,20 @@ public static partial class GamePatches
 			catch (Exception value)
 			{
 				Plugin.Log($"Coordinator creation failed: {value}");
+			}
+		}
+
+		if (Plugin.BadgeManager == null)
+		{
+			try
+			{
+				bool showBadges = Plugin.Coordinator?.Settings?.ShowInGameBadges ?? true;
+				Plugin.BadgeManager = new BadgeManager(showBadges);
+				Plugin.Log("BadgeManager created.");
+			}
+			catch (Exception value)
+			{
+				Plugin.Log($"BadgeManager creation failed: {value}");
 			}
 		}
 	}
@@ -112,7 +113,7 @@ public static partial class GamePatches
 			int num = gameState?.Floor ?? 0;
 			int num2 = gameState?.ActNumber ?? 0;
 			RunOutcome runOutcome = (!__0 ? RunOutcome.Loss : RunOutcome.Win);
-			Plugin.Overlay?.ShowRunSummary(runOutcome, num, num2);
+			Plugin.Coordinator?.ShowRunSummary(runOutcome, num, num2);
 			Plugin.RunTracker?.EndRun(runOutcome, num, num2);
 			// ApplyCachedStats: recompute local + merge cached cloud data once (no double-counting)
 			if (Plugin.CloudSync != null)

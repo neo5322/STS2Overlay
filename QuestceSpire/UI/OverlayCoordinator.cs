@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using Godot;
 using QuestceSpire.Core;
 using QuestceSpire.GameBridge;
+using QuestceSpire.Tracking;
 using QuestceSpire.UI.Injectors;
 
 namespace QuestceSpire.UI;
 
 /// <summary>
 /// Coordinates per-screen injectors, manages shared resources and global UI elements.
-/// Replaces OverlayManager as the central entry point for overlay UI.
-///
-/// Migration strategy: screens are migrated one at a time from OverlayManager to injectors.
-/// During migration, both OverlayCoordinator (new) and OverlayManager (legacy) coexist.
+/// Central entry point for overlay UI — replaces OverlayManager.
 /// </summary>
 public class OverlayCoordinator
 {
@@ -21,6 +19,7 @@ public class OverlayCoordinator
 	private BaseScreenInjector _activeInjector;
 	private CanvasLayer _utilityLayer;
 	private OverlayInputHandler _inputHandler;
+	private SettingsPanel _settingsPanel;
 	private bool _visible = true;
 
 	public OverlayCoordinator(OverlaySettings settings)
@@ -28,6 +27,7 @@ public class OverlayCoordinator
 		_settings = settings;
 		SharedResources.Initialize();
 		BuildUtilityLayer();
+		_settingsPanel = new SettingsPanel(settings, this);
 		Plugin.Log("OverlayCoordinator initialized.");
 	}
 
@@ -138,6 +138,14 @@ public class OverlayCoordinator
 		injector.Show(gameNode, cards, relics, deckAnalysis, character);
 	}
 
+	public void ShowRunSummary(RunOutcome outcome, int finalFloor, int finalAct)
+	{
+		if (!(_settings.ShowRunSummary)) return;
+		var injector = GetInjector<RunSummaryInjector>();
+		Activate(injector);
+		injector.Show(outcome, finalFloor, finalAct);
+	}
+
 	public void UpdateCombatPiles(CombatSnapshot snapshot)
 	{
 		if (_activeInjector is CombatInjector combat)
@@ -147,6 +155,17 @@ public class OverlayCoordinator
 	public void Clear()
 	{
 		DeactivateCurrent();
+	}
+
+	/// <summary>Rebuild the currently active injector (e.g. after settings change).</summary>
+	public void RebuildActiveInjector()
+	{
+		_activeInjector?.Rebuild();
+	}
+
+	public void ToggleSettings()
+	{
+		_settingsPanel?.Toggle();
 	}
 
 	// === Global controls ===
@@ -163,6 +182,7 @@ public class OverlayCoordinator
 	{
 		_activeInjector?.StabilizeLayout();
 		_activeInjector?.ProcessAutoFade(delta);
+		Plugin.BadgeManager?.UpdateBadgePositions();
 
 		// Detect if active injector's panel was freed (game node destroyed)
 		if (_activeInjector != null && !_activeInjector.IsValid())

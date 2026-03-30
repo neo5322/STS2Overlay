@@ -51,6 +51,8 @@ public class SharedResources
 	public static readonly Color ClrAqua = OverlayTheme.Info;
 	public static readonly Color ClrOutline = OverlayTheme.Outline;
 	public static readonly Color ClrCream = OverlayTheme.TextBody;
+	public static readonly Color ClrBody = OverlayTheme.TextBody;
+	public static readonly Color ClrInfo = OverlayTheme.Info;
 
 	private static readonly string[] PortraitFallbackFolders = new[]
 	{

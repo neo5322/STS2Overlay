@@ -51,7 +51,7 @@ public static partial class GamePatches
 		try
 		{
 			// Always clean up existing badges first — prevents stale badges on pile viewers, etc.
-			Plugin.Overlay?.CleanupAllBadges();
+			Plugin.BadgeManager?.CleanupAllBadges();
 			// Draw/discard pile viewers use ShowScreen with 20+ cards — skip those
 			// But multi-pick screens (e.g. "choose 2 from 9") have 6-15 cards — allow those
 			if (options != null && options.Count > 15)
@@ -205,7 +205,7 @@ public static partial class GamePatches
 		Plugin.RunTracker?.RecordArchetypeSnapshot(gameState.Floor, deckAnalysis);
 		List<ScoredCard> cards = Plugin.SynergyScorer.ScoreOfferings(gameState.OfferedCards, deckAnalysis, gameState.Character, gameState.ActNumber, gameState.Floor, Plugin.TierEngine, Plugin.AdaptiveScorer);
 		Plugin.Coordinator?.ShowCardAdvice(screen, cards, deckAnalysis, gameState.Character);
-		Plugin.Overlay?.InjectCardGrades(screen, cards);
+		Plugin.BadgeManager?.InjectCardGrades(screen, cards);
 		// Dedup: only record if this is a new offering (prevents ShowScreen+RefreshOptions double-recording)
 		var offeredIds = gameState.OfferedCards.ConvertAll((CardInfo c) => c.Id);
 		offeredIds.Sort();
@@ -301,7 +301,7 @@ public static partial class GamePatches
 			GameStateReader.SetLastRelicOptions(null);
 			GameStateReader.SetLastMerchantInventory(null);
 			Plugin.Coordinator?.Clear();
-			Plugin.Overlay?.Clear();
+			Plugin.BadgeManager?.CleanupAllBadges();
 		}
 		catch (Exception value3)
 		{

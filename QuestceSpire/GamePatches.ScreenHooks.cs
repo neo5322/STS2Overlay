@@ -133,7 +133,7 @@ public static partial class GamePatches
 					var scored = Plugin.SynergyScorer.ScoreForUpgrade(offeredCards, deckAnalysis, character,
 						gameState.ActNumber, gameState.Floor, Plugin.TierEngine, Plugin.AdaptiveScorer);
 					Plugin.Coordinator?.ShowCardAdvice(upgradeNode, scored, deckAnalysis, character, "CARD UPGRADE");
-					Plugin.Overlay?.CleanupAllBadges();
+					Plugin.BadgeManager?.CleanupAllBadges();
 					return;
 				}
 			}
@@ -465,7 +465,7 @@ public static partial class GamePatches
 			GameStateReader.SetLastRelicOptions(null);
 			GameStateReader.SetLastMerchantInventory(null);
 			Plugin.Coordinator?.Clear();
-			Plugin.Overlay?.Clear();
+			Plugin.BadgeManager?.CleanupAllBadges();
 		}
 		catch (Exception value2)
 		{
