@@ -84,7 +84,26 @@ public partial class OverlayManager
 
 		// ── 데이터 (Data) ──
 		AddSettingsGroupHeader(menuVBox, "데이터");
-		AddSettingsToggle(menuVBox, "클라우드 동기화", _settings.CloudSyncEnabled, () => { _settings.CloudSyncEnabled = !_settings.CloudSyncEnabled; _settings.Save(); RefreshSettingsMenu(); });
+		AddSettingsToggle(menuVBox, "클라우드 동기화", _settings.CloudSyncEnabled, () => {
+			if (!_settings.CloudSyncEnabled && !_settings.HasSeenCloudNotice)
+			{
+				// First-time enable: mark notice as seen (privacy info shown below toggle)
+				_settings.HasSeenCloudNotice = true;
+			}
+			_settings.CloudSyncEnabled = !_settings.CloudSyncEnabled;
+			_settings.Save();
+			RefreshSettingsMenu();
+		});
+		if (_settings.CloudSyncEnabled)
+		{
+			Label privacyNote = new Label();
+			privacyNote.Text = "  ℹ 전송 데이터: 런 결과, 카드 선택, 승률 (개인 식별 정보 없음)";
+			ApplyFont(privacyNote, _fontBody);
+			privacyNote.AddThemeFontSizeOverride("font_size", OverlayTheme.FontCaption);
+			privacyNote.AddThemeColorOverride("font_color", ClrSub);
+			privacyNote.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+			menuVBox.AddChild(privacyNote, forceReadableName: false, Node.InternalMode.Disabled);
+		}
 		AddSettingsToggle(menuVBox, "데이터 자동 업데이트", _settings.AutoUpdateData, () => { _settings.AutoUpdateData = !_settings.AutoUpdateData; _settings.Save(); RefreshSettingsMenu(); });
 		AddSettingsToggle(menuVBox, "파이프라인 동기화", _settings.EnablePipelineSync, () => { _settings.EnablePipelineSync = !_settings.EnablePipelineSync; _settings.Save(); RefreshSettingsMenu(); });
 

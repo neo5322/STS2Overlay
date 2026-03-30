@@ -43,6 +43,9 @@ public class OverlaySettings
 	[JsonProperty("debugLogging")]
 	public bool DebugLogging { get; set; }
 
+	[JsonProperty("hasSeenCloudNotice")]
+	public bool HasSeenCloudNotice { get; set; }
+
 	// v0.15: Auto-fade — panel fades to idle opacity when mouse leaves
 	public bool AutoFadeEnabled { get; set; } = true;
 	public float IdleOpacity { get; set; } = 0.35f;

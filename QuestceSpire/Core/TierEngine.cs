@@ -210,6 +210,51 @@ public class TierEngine
 			Plugin.Log($"TierEngine: tier data version={TierDataVersion}, game version={GameVersion ?? "unknown"}");
 		if (IsTierDataStale)
 			Plugin.Log($"WARNING: Tier data ({TierDataVersion}) may be outdated for game version {GameVersion}");
+
+		ValidateSynergyTags();
+	}
+
+	private void ValidateSynergyTags()
+	{
+		// Collect all known archetype/synergy tags
+		var knownTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		// Add common gameplay tags that aren't archetypes
+		knownTags.UnionWith(new[] {
+			"draw", "scaling", "damage", "defense", "aoe", "block",
+			"energy", "exhaust", "flexible", "upgraded", "healing",
+			"gold", "card_manipulation", "status", "debuff", "buff",
+			"multi_hit", "retain", "innate", "ethereal"
+		});
+
+		// Add archetype tags (core + support) from all characters
+		foreach (var (_, archetypes) in ArchetypeDefinitions.ByCharacter)
+		{
+			foreach (var arch in archetypes)
+			{
+				knownTags.Add(arch.Id);
+				if (arch.CoreTags != null) knownTags.UnionWith(arch.CoreTags);
+				if (arch.SupportTags != null) knownTags.UnionWith(arch.SupportTags);
+			}
+		}
+
+		int unknownCount = 0;
+		var unknownTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		foreach (var (character, tiers) in _cardTiers)
+		{
+			if (tiers.Cards == null) continue;
+			foreach (var card in tiers.Cards)
+			{
+				if (card.Synergies == null) continue;
+				foreach (var tag in card.Synergies)
+				{
+					if (!knownTags.Contains(tag) && unknownTags.Add(tag))
+						unknownCount++;
+				}
+			}
+		}
+
+		if (unknownCount > 0)
+			Plugin.Log($"TierEngine: {unknownCount} unrecognized synergy tags found: {string.Join(", ", unknownTags.Take(10))}");
 	}
 
 	private class AutoTierFile
