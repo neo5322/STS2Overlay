@@ -48,16 +48,16 @@ public class CommunityArchetype
     public List<string> Rec { get; set; } = new();
 
     [JsonProperty("sourceType")]
-    public string? SourceType { get; set; }
+    public string SourceType { get; set; }
 
     [JsonProperty("sourceName")]
-    public string? SourceName { get; set; }
+    public string SourceName { get; set; }
 
     [JsonProperty("sourceUrl")]
-    public string? SourceUrl { get; set; }
+    public string SourceUrl { get; set; }
 
     [JsonProperty("sub")]
-    public string? Sub { get; set; }
+    public string Sub { get; set; }
 }
 
 // 커뮤니티 콤보 모델
@@ -259,7 +259,7 @@ public class CommunityData
     /// <summary>
     /// 한국어 카드명으로 팁 조회
     /// </summary>
-    public string? GetTip(string koreanCardName)
+    public string GetTip(string koreanCardName)
     {
         return _cardTips.TryGetValue(koreanCardName, out var tip) ? tip : null;
     }
@@ -301,7 +301,7 @@ public class CommunityData
     /// 덱 카드 목록에서 가장 잘 맞는 아키타입 감지
     /// detectBuildScores 로직 포팅: must(72) + rec(30) + 티어보너스 + 파워보너스
     /// </summary>
-    public CommunityArchetype? DetectArchetype(string character, IEnumerable<string> deckKoreanNames)
+    public CommunityArchetype DetectArchetype(string character, IEnumerable<string> deckKoreanNames)
     {
         if (deckKoreanNames == null || string.IsNullOrEmpty(character))
             return null;
@@ -309,7 +309,7 @@ public class CommunityData
             return null;
 
         var deckSet = new HashSet<string>(deckKoreanNames);
-        CommunityArchetype? best = null;
+        CommunityArchetype best = null;
         float bestScore = 0f;
 
         foreach (var arch in archetypes)
@@ -482,7 +482,7 @@ public class CommunityData
     /// <summary>
     /// 카드 해금 조건 조회
     /// </summary>
-    public string? GetUnlockCondition(string koreanCardName)
+    public string GetUnlockCondition(string koreanCardName)
     {
         return _unlockConditions.TryGetValue(koreanCardName, out var cond) ? cond : null;
     }
@@ -490,7 +490,7 @@ public class CommunityData
     /// <summary>
     /// 커뮤니티 티어 조회 (캐릭터 카드 → 무색 카드 순서로 탐색)
     /// </summary>
-    public string? GetCommunityTier(string character, string koreanCardName)
+    public string GetCommunityTier(string character, string koreanCardName)
     {
         if (_cardTiers.TryGetValue($"{character}:{koreanCardName}", out var tier))
             return tier;
