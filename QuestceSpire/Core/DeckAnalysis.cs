@@ -53,18 +53,6 @@ public class DeckAnalysis
 		return DetectedArchetypes.FirstOrDefault((ArchetypeMatch a) => a.Archetype.Id == archetypeId)?.Strength ?? 0f;
 	}
 
-	/// <summary>Community-detected archetype for this deck.</summary>
-	public object CommunityArchetype { get; set; }
-
-	/// <summary>Build completion state from community data.</summary>
-	public object BuildCompletion { get; set; }
-
-	/// <summary>Korean names of must-have cards missing from deck.</summary>
-	public List<string> MissingMustCards { get; set; }
-
-	/// <summary>Korean names of recommended cards missing from deck.</summary>
-	public List<string> MissingRecCards { get; set; }
-
 	/// <summary>Returns 1.0 - coverage for the given job (how badly the deck needs it).</summary>
 	public float JobGap(string job)
 	{
@@ -74,10 +62,10 @@ public class DeckAnalysis
 	}
 
 	/// <summary>Best community archetype detected for the current deck. Null if community data unavailable.</summary>
-	public object CommunityArchetype { get; set; }
+	public CommunityArchetype CommunityArchetype { get; set; }
 
 	/// <summary>Build completion state from community data. Null if unavailable.</summary>
-	public object BuildCompletion { get; set; }
+	public BuildCompletionState BuildCompletion { get; set; }
 
 	/// <summary>Must-have cards missing from the detected community build.</summary>
 	public List<string> MissingMustCards { get; set; } = new List<string>();

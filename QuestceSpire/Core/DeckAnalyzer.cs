@@ -188,7 +188,7 @@ public class DeckAnalyzer : IDeckAnalyzer
 					deckAnalysis.CommunityArchetype = communityArch;
 
 					// Get build completion state
-					string archId = communityArch.Id?.ToString();
+					string archId = communityArch.Id;
 					if (archId != null)
 					{
 						var completion = cd.GetBuildCompletion(character, archId, deckKoreanNames);
@@ -197,23 +197,9 @@ public class DeckAnalyzer : IDeckAnalyzer
 							deckAnalysis.BuildCompletion = completion;
 							// Extract missing must/rec cards
 							if (completion.MissingMust != null)
-							{
-								foreach (var must in completion.MissingMust)
-								{
-									string name = must?.ToString();
-									if (name != null)
-										deckAnalysis.MissingMustCards.Add(name);
-								}
-							}
+								deckAnalysis.MissingMustCards.AddRange(completion.MissingMust.Where(m => m != null));
 							if (completion.MissingRec != null)
-							{
-								foreach (var rec in completion.MissingRec)
-								{
-									string name = rec?.ToString();
-									if (name != null)
-										deckAnalysis.MissingRecCards.Add(name);
-								}
-							}
+								deckAnalysis.MissingRecCards.AddRange(completion.MissingRec.Where(r => r != null));
 						}
 					}
 				}

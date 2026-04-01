@@ -739,7 +739,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 	// --- Community scoring methods (16-21) ---
 
 	/// <summary>16. Combo bonus: reward cards whose known combos are present in deck.</summary>
-	private float ApplyCommunityComboBonus(dynamic cd, string character, string koreanName,
+	private float ApplyCommunityComboBonus(CommunityData cd, string character, string koreanName,
 		List<string> deckKoreanNames, ref float score, List<string> synReasons,
 		List<(string Tag, string Label)> chips)
 	{
@@ -756,7 +756,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 				bonus += Cfg.CommunityComboFullBonus;
 				foreach (var combo in full)
 				{
-					string comboName = combo?.ToString() ?? "콤보";
+					string comboName = combo?.Name ?? "콤보";
 					synReasons.Add($"+{Cfg.CommunityComboFullBonus:F1} 콤보 완성: {comboName}");
 					chips.Add(("good", $"콤보: {comboName}"));
 				}
@@ -766,7 +766,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 				bonus += Cfg.CommunityComboPartialBonus;
 				foreach (var combo in partial)
 				{
-					string comboName = combo?.ToString() ?? "콤보";
+					string comboName = combo?.Name ?? "콤보";
 					synReasons.Add($"+{Cfg.CommunityComboPartialBonus:F1} 콤보 부분: {comboName}");
 					chips.Add(("mid", $"콤보 가능: {comboName}"));
 				}
@@ -778,7 +778,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 	}
 
 	/// <summary>17. Build alignment: reward cards that match the detected community archetype.</summary>
-	private float ApplyCommunityBuildAlignment(dynamic cd, string character, string koreanName,
+	private float ApplyCommunityBuildAlignment(CommunityData cd, string character, string koreanName,
 		List<string> deckKoreanNames, DeckAnalysis deckAnalysis, ref float score,
 		List<string> synReasons, List<string> antiReasons,
 		List<(string Tag, string Label)> chips, ref string buildAlignment)
@@ -859,7 +859,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 	}
 
 	/// <summary>18. Anchor power bonus: high-power anchor cards get a scaled bonus.</summary>
-	private float ApplyAnchorPowerBonus(dynamic cd, string koreanName, ref float score,
+	private float ApplyAnchorPowerBonus(CommunityData cd, string koreanName, ref float score,
 		List<string> synReasons, List<(string Tag, string Label)> chips)
 	{
 		try
@@ -876,7 +876,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 	}
 
 	/// <summary>19. Universal bonus: cards that are strong in any deck get a bonus when not yet owned.</summary>
-	private float ApplyUniversalBonus(dynamic cd, string character, string koreanName,
+	private float ApplyUniversalBonus(CommunityData cd, string character, string koreanName,
 		List<string> deckCardIds, CardInfo card, ref float score,
 		List<string> synReasons, List<(string Tag, string Label)> chips)
 	{
@@ -896,7 +896,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 	}
 
 	/// <summary>20. Duplicate exception: reduce duplicate penalty for cards worth having 2+ copies.</summary>
-	private float ApplyDuplicateExceptionOverride(dynamic cd, string koreanName,
+	private float ApplyDuplicateExceptionOverride(CommunityData cd, string koreanName,
 		List<string> deckCardIds, CardInfo card, ref float score,
 		List<string> synReasons, List<(string Tag, string Label)> chips)
 	{
@@ -916,7 +916,7 @@ public class SynergyScorer : ICardScorer, IRelicScorer
 	}
 
 	/// <summary>21. Community tip: get Korean tip text for display (no score impact).</summary>
-	private static string ApplyCommunityTipNote(dynamic cd, string koreanName)
+	private static string ApplyCommunityTipNote(CommunityData cd, string koreanName)
 	{
 		try
 		{

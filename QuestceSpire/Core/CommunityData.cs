@@ -269,6 +269,7 @@ public class CommunityData
     /// </summary>
     public bool IsUniversal(string character, string koreanCardName)
     {
+        if (string.IsNullOrEmpty(koreanCardName)) return false;
         return _universalCards.TryGetValue(character, out var list) && list.Contains(koreanCardName);
     }
 
@@ -302,6 +303,8 @@ public class CommunityData
     /// </summary>
     public CommunityArchetype? DetectArchetype(string character, IEnumerable<string> deckKoreanNames)
     {
+        if (deckKoreanNames == null || string.IsNullOrEmpty(character))
+            return null;
         if (!_archetypes.TryGetValue(character, out var archetypes) || archetypes.Count == 0)
             return null;
 
@@ -354,6 +357,8 @@ public class CommunityData
     {
         var state = new BuildCompletionState();
 
+        if (deckKoreanNames == null || string.IsNullOrEmpty(character) || string.IsNullOrEmpty(archetypeId))
+            return state;
         if (!_archetypes.TryGetValue(character, out var archetypes))
             return state;
 
@@ -431,6 +436,8 @@ public class CommunityData
         var fullMatches = new List<CommunityCombo>();
         var partialMatches = new List<CommunityCombo>();
 
+        if (string.IsNullOrEmpty(koreanCardName) || deckKoreanNames == null)
+            return (fullMatches, partialMatches);
         if (!_combos.TryGetValue(character, out var combos))
             return (fullMatches, partialMatches);
 
@@ -546,13 +553,20 @@ public class CommunityData
         };
     }
 
-    // 빌드 완성도 계산용 티어 보너스
+    // 빌드 완성도 계산용 티어 보너스 (원본 JS 알고리즘과 동일: S=24, A=16, B=10, C=4, D=0)
     private float GetCompletionTierBonus(string character, string koreanCardName)
     {
         var tier = GetCommunityTier(character, koreanCardName);
         if (tier == null) return 0f;
 
-        // buildTierBonus 데이터에서 가져오기 (S=36, A=18, B=8, C=0, D=-8)
-        return _buildTierBonus.TryGetValue(tier, out var bonus) ? bonus : 0f;
+        return tier switch
+        {
+            "S" => 24f,
+            "A" => 16f,
+            "B" => 10f,
+            "C" => 4f,
+            "D" => 0f,
+            _ => 0f
+        };
     }
 }
