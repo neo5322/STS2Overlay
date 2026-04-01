@@ -5138,6 +5138,18 @@
       "일반": 0,
       "시작": -28
     },
+    "runStageThresholds": {
+      "early": "<45",
+      "mid": "45-95",
+      "late": ">95"
+    },
+    "buildCompletionLevels": {
+      "level1": "<40%",
+      "level2": "40-60%",
+      "level3": "60-85%",
+      "level4": "85-100%",
+      "level5": "100%"
+    },
     "mustCardWeight": {
       "early": 64,
       "midLate": 74
@@ -5173,18 +5185,6 @@
       "activeInBuild": 24,
       "offBuildSPenalty": -18,
       "buildCardBonus": 18
-    },
-    "buildCompletionLevels": {
-      "level1": "<40%",
-      "level2": "40-60%",
-      "level3": "60-85%",
-      "level4": "85-100%",
-      "level5": "100%"
-    },
-    "runStageThresholds": {
-      "early": "<45",
-      "mid": "45-95",
-      "late": ">95"
     }
   },
   "buildRelics": {},
